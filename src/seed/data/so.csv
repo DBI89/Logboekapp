@@ -1,0 +1,13 @@
+code;naam;niveau;objecttype;toepassing;locatie;ouder_code;extern;eigenaar_organisatie
+TN;Traject N-weg;0;Traject;Wegsysteem;;;nee;
+TN-WL;Weglichaam N-weg;1;Weglichaam;Stroomweg;;TN;nee;
+TN-WL-RB-R;Rijbaan rechts;2;Wegdeel;Rijbaan;rechts;TN-WL;nee;
+EXT-KL;Kabels en leidingen derden;2;Kabels en leidingen;Middenspanning;kruising km 3,2;TN-WL;ja;Netbeheerder Noord
+VN;Viaduct Noord;1;Kunstwerk;Viaduct;;TN;nee;
+VN-OV-12;Overspanning as-1–as-2;2;Bovenbouw;Overspanning;tussen as-1 en as-2;VN;nee;
+VN-OV-23;Overspanning as-2–as-3;2;Bovenbouw;Overspanning;tussen as-2 en as-3;VN;nee;
+VN-OV-34;Overspanning as-3–as-4;2;Bovenbouw;Overspanning;tussen as-3 en as-4;VN;nee;
+VN-SP-1;Steunpunt as-1;2;Onderbouw;Steunpunt;as-1;VN;nee;
+VN-SP-2;Steunpunt as-2;2;Onderbouw;Steunpunt;as-2;VN;nee;
+VN-SP-3;Steunpunt as-3;2;Onderbouw;Steunpunt;as-3;VN;nee;
+VN-SP-4;Steunpunt as-4;2;Onderbouw;Steunpunt;as-4;VN;nee;
