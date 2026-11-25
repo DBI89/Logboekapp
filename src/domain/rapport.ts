@@ -7,21 +7,8 @@ import { laadObjecten, nakomelingenUit } from "./objecten";
 import { geraakteObjectenVan, haalRegistratie, type RegistratieDetail } from "./registraties";
 import { faseOverzicht } from "./fasen";
 import { Fout, TYPE_LABEL, type Actor, type RegistratieType } from "./types";
+import { STATUS_LABEL, TYPE_MEERVOUD } from "./labels";
 
-export const STATUS_LABEL: Record<string, string> = {
-  open: "Open",
-  in_behandeling: "In behandeling",
-  opgelost: "Opgelost",
-  vervallen: "Vervallen",
-  concept: "Concept",
-  ter_goedkeuring: "Ter goedkeuring",
-  goedgekeurd: "Goedgekeurd",
-  afgewezen: "Afgewezen",
-  verwerkt: "Verwerkt",
-  vervangen: "Vervangen",
-  afgestemd: "Afgestemd",
-  vastgesteld: "Vastgesteld",
-};
 
 const tekst = (v: unknown) => (v === undefined || v === null ? "" : String(v));
 const d = (r: RegistratieDetail) => r.details as Record<string, unknown>;
@@ -105,13 +92,6 @@ export const KOLOMMEN: Record<RegistratieType, Kolom[]> = {
 };
 
 export const TYPE_VOLGORDE: RegistratieType[] = ["afwijking", "wijziging", "ontwerpkeuze", "raakvlak", "issue"];
-export const TYPE_MEERVOUD: Record<RegistratieType, string> = {
-  afwijking: "Afwijkingen",
-  wijziging: "Wijzigingen",
-  ontwerpkeuze: "Ontwerpkeuzes",
-  raakvlak: "Raakvlakafspraken",
-  issue: "Issues",
-};
 
 const OPNEMEN: Record<RegistratieType, string[]> = {
   afwijking: ["goedgekeurd", "verwerkt"],
@@ -240,4 +220,4 @@ export async function verschilMetVorige(
   };
 }
 
-export { TYPE_LABEL };
+export { TYPE_LABEL, STATUS_LABEL, TYPE_MEERVOUD };
