@@ -2,6 +2,8 @@ import { and, eq } from "drizzle-orm";
 import type { Db } from "@/db/client";
 import { objecten } from "@/db/schema";
 import { Fout } from "./types";
+import { isOntwerpleider } from "./rechten";
+import { logHistorie } from "./historie";
 
 export type ObjectRij = typeof objecten.$inferSelect;
 
@@ -127,4 +129,12 @@ export async function objectBoom(db: Db, projectId: string): Promise<ObjectKnoop
   };
   sorteer(wortels);
   return wortels;
+}
+
+export async function zetEigenaar(db: Db, actor: { projectId: string; gebruikerId: string }, objectId: string, eigenaarId: string | null): Promise<void> {
+  if (!(await isOntwerpleider(db, actor))) throw new Fout("Alleen de ontwerpleider wijst objecteigenaren aan");
+  const [o] = await db.select().from(objecten).where(eq(objecten.id, objectId));
+  if (!o || o.projectId !== actor.projectId) throw new Fout("Object bestaat niet");
+  await db.update(objecten).set({ eigenaarId }).where(eq(objecten.id, objectId));
+  await logHistorie(db, { projectId: actor.projectId, gebruikerId: actor.gebruikerId, entiteit: "object", entiteitId: objectId, actie: "eigenaar", oud: { eigenaarId: o.eigenaarId }, nieuw: { eigenaarId } });
 }
