@@ -1,0 +1,1853 @@
+{
+  "id": "ca909848-e083-4098-9f9b-a63d5cd77477",
+  "prevId": "e6af7a8e-18ae-413b-bdc1-42fc6ddcf37d",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.delegaties": {
+      "name": "delegaties",
+      "schema": "",
+      "columns": {
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gebruiker_id": {
+          "name": "gebruiker_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actief": {
+          "name": "actief",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "sinds": {
+          "name": "sinds",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "delegaties_project_id_projecten_id_fk": {
+          "name": "delegaties_project_id_projecten_id_fk",
+          "tableFrom": "delegaties",
+          "tableTo": "projecten",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "delegaties_gebruiker_id_gebruikers_id_fk": {
+          "name": "delegaties_gebruiker_id_gebruikers_id_fk",
+          "tableFrom": "delegaties",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "gebruiker_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "delegaties_project_id_gebruiker_id_pk": {
+          "name": "delegaties_project_id_gebruiker_id_pk",
+          "columns": [
+            "project_id",
+            "gebruiker_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.document_objecten": {
+      "name": "document_objecten",
+      "schema": "",
+      "columns": {
+        "document_id": {
+          "name": "document_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "object_id": {
+          "name": "object_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "document_objecten_document_id_documenten_id_fk": {
+          "name": "document_objecten_document_id_documenten_id_fk",
+          "tableFrom": "document_objecten",
+          "tableTo": "documenten",
+          "columnsFrom": [
+            "document_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "document_objecten_object_id_objecten_id_fk": {
+          "name": "document_objecten_object_id_objecten_id_fk",
+          "tableFrom": "document_objecten",
+          "tableTo": "objecten",
+          "columnsFrom": [
+            "object_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "document_objecten_document_id_object_id_pk": {
+          "name": "document_objecten_document_id_object_id_pk",
+          "columns": [
+            "document_id",
+            "object_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.document_uitsluitingen": {
+      "name": "document_uitsluitingen",
+      "schema": "",
+      "columns": {
+        "document_id": {
+          "name": "document_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registratie_id": {
+          "name": "registratie_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reden": {
+          "name": "reden",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "door": {
+          "name": "door",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "op": {
+          "name": "op",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "document_uitsluitingen_document_id_documenten_id_fk": {
+          "name": "document_uitsluitingen_document_id_documenten_id_fk",
+          "tableFrom": "document_uitsluitingen",
+          "tableTo": "documenten",
+          "columnsFrom": [
+            "document_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "document_uitsluitingen_registratie_id_registraties_id_fk": {
+          "name": "document_uitsluitingen_registratie_id_registraties_id_fk",
+          "tableFrom": "document_uitsluitingen",
+          "tableTo": "registraties",
+          "columnsFrom": [
+            "registratie_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "document_uitsluitingen_door_gebruikers_id_fk": {
+          "name": "document_uitsluitingen_door_gebruikers_id_fk",
+          "tableFrom": "document_uitsluitingen",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "door"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "document_uitsluitingen_document_id_registratie_id_pk": {
+          "name": "document_uitsluitingen_document_id_registratie_id_pk",
+          "columns": [
+            "document_id",
+            "registratie_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.documenten": {
+      "name": "documenten",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nummer": {
+          "name": "nummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "discipline": {
+          "name": "discipline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revisie": {
+          "name": "revisie",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fase_id": {
+          "name": "fase_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "documenten_project_id_projecten_id_fk": {
+          "name": "documenten_project_id_projecten_id_fk",
+          "tableFrom": "documenten",
+          "tableTo": "projecten",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "documenten_fase_id_fasen_id_fk": {
+          "name": "documenten_fase_id_fasen_id_fk",
+          "tableFrom": "documenten",
+          "tableTo": "fasen",
+          "columnsFrom": [
+            "fase_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.fasen": {
+      "name": "fasen",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "volgorde": {
+          "name": "volgorde",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fasen_project_id_projecten_id_fk": {
+          "name": "fasen_project_id_projecten_id_fk",
+          "tableFrom": "fasen",
+          "tableTo": "projecten",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.gebruikers": {
+      "name": "gebruikers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "naam": {
+          "name": "naam",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "gebruikers_email_unique": {
+          "name": "gebruikers_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.historie": {
+      "name": "historie",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gebruiker_id": {
+          "name": "gebruiker_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entiteit": {
+          "name": "entiteit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entiteit_id": {
+          "name": "entiteit_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actie": {
+          "name": "actie",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oud": {
+          "name": "oud",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nieuw": {
+          "name": "nieuw",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "op": {
+          "name": "op",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "historie_project_id_projecten_id_fk": {
+          "name": "historie_project_id_projecten_id_fk",
+          "tableFrom": "historie",
+          "tableTo": "projecten",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "historie_gebruiker_id_gebruikers_id_fk": {
+          "name": "historie_gebruiker_id_gebruikers_id_fk",
+          "tableFrom": "historie",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "gebruiker_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.melding_objecten": {
+      "name": "melding_objecten",
+      "schema": "",
+      "columns": {
+        "melding_id": {
+          "name": "melding_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "object_id": {
+          "name": "object_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "melding_objecten_melding_id_meldingen_id_fk": {
+          "name": "melding_objecten_melding_id_meldingen_id_fk",
+          "tableFrom": "melding_objecten",
+          "tableTo": "meldingen",
+          "columnsFrom": [
+            "melding_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "melding_objecten_object_id_objecten_id_fk": {
+          "name": "melding_objecten_object_id_objecten_id_fk",
+          "tableFrom": "melding_objecten",
+          "tableTo": "objecten",
+          "columnsFrom": [
+            "object_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "melding_objecten_melding_id_object_id_pk": {
+          "name": "melding_objecten_melding_id_object_id_pk",
+          "columns": [
+            "melding_id",
+            "object_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.meldingen": {
+      "name": "meldingen",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nummer": {
+          "name": "nummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "omschrijving": {
+          "name": "omschrijving",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fase_id": {
+          "name": "fase_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'nieuw'"
+        },
+        "bron_soort": {
+          "name": "bron_soort",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'waarneming'"
+        },
+        "bron_ref": {
+          "name": "bron_ref",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gemeld_door": {
+          "name": "gemeld_door",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gemeld_op": {
+          "name": "gemeld_op",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "vervallen_reden": {
+          "name": "vervallen_reden",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "beoordeeld_door": {
+          "name": "beoordeeld_door",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "meldingen_project_id_projecten_id_fk": {
+          "name": "meldingen_project_id_projecten_id_fk",
+          "tableFrom": "meldingen",
+          "tableTo": "projecten",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "meldingen_fase_id_fasen_id_fk": {
+          "name": "meldingen_fase_id_fasen_id_fk",
+          "tableFrom": "meldingen",
+          "tableTo": "fasen",
+          "columnsFrom": [
+            "fase_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "meldingen_gemeld_door_gebruikers_id_fk": {
+          "name": "meldingen_gemeld_door_gebruikers_id_fk",
+          "tableFrom": "meldingen",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "gemeld_door"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "meldingen_beoordeeld_door_gebruikers_id_fk": {
+          "name": "meldingen_beoordeeld_door_gebruikers_id_fk",
+          "tableFrom": "meldingen",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "beoordeeld_door"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.nummerteller": {
+      "name": "nummerteller",
+      "schema": "",
+      "columns": {
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "soort": {
+          "name": "soort",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "laatste": {
+          "name": "laatste",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "nummerteller_project_id_projecten_id_fk": {
+          "name": "nummerteller_project_id_projecten_id_fk",
+          "tableFrom": "nummerteller",
+          "tableTo": "projecten",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "nummerteller_project_id_soort_pk": {
+          "name": "nummerteller_project_id_soort_pk",
+          "columns": [
+            "project_id",
+            "soort"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.object_imports": {
+      "name": "object_imports",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fase_id": {
+          "name": "fase_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bestandsnaam": {
+          "name": "bestandsnaam",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "uitgevoerd_door": {
+          "name": "uitgevoerd_door",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "uitgevoerd_op": {
+          "name": "uitgevoerd_op",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "object_imports_project_id_projecten_id_fk": {
+          "name": "object_imports_project_id_projecten_id_fk",
+          "tableFrom": "object_imports",
+          "tableTo": "projecten",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "object_imports_fase_id_fasen_id_fk": {
+          "name": "object_imports_fase_id_fasen_id_fk",
+          "tableFrom": "object_imports",
+          "tableTo": "fasen",
+          "columnsFrom": [
+            "fase_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "object_imports_uitgevoerd_door_gebruikers_id_fk": {
+          "name": "object_imports_uitgevoerd_door_gebruikers_id_fk",
+          "tableFrom": "object_imports",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "uitgevoerd_door"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.objecten": {
+      "name": "objecten",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "naam": {
+          "name": "naam",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "niveau": {
+          "name": "niveau",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "objecttype": {
+          "name": "objecttype",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "toepassing": {
+          "name": "toepassing",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "locatie": {
+          "name": "locatie",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ouder_id": {
+          "name": "ouder_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extern": {
+          "name": "extern",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "eigenaar_organisatie": {
+          "name": "eigenaar_organisatie",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "eigenaar_id": {
+          "name": "eigenaar_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actief": {
+          "name": "actief",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "laatste_import_id": {
+          "name": "laatste_import_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "objecten_project_id_projecten_id_fk": {
+          "name": "objecten_project_id_projecten_id_fk",
+          "tableFrom": "objecten",
+          "tableTo": "projecten",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "objecten_ouder_id_objecten_id_fk": {
+          "name": "objecten_ouder_id_objecten_id_fk",
+          "tableFrom": "objecten",
+          "tableTo": "objecten",
+          "columnsFrom": [
+            "ouder_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "objecten_eigenaar_id_gebruikers_id_fk": {
+          "name": "objecten_eigenaar_id_gebruikers_id_fk",
+          "tableFrom": "objecten",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "eigenaar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "objecten_laatste_import_id_object_imports_id_fk": {
+          "name": "objecten_laatste_import_id_object_imports_id_fk",
+          "tableFrom": "objecten",
+          "tableTo": "object_imports",
+          "columnsFrom": [
+            "laatste_import_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "objecten_project_id_code_unique": {
+          "name": "objecten_project_id_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "project_id",
+            "code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.projecten": {
+      "name": "projecten",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "naam": {
+          "name": "naam",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nummer": {
+          "name": "nummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actieve_fase_id": {
+          "name": "actieve_fase_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inbox_signaal_werkdagen": {
+          "name": "inbox_signaal_werkdagen",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 5
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.projectleden": {
+      "name": "projectleden",
+      "schema": "",
+      "columns": {
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gebruiker_id": {
+          "name": "gebruiker_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rol": {
+          "name": "rol",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "projectleden_project_id_projecten_id_fk": {
+          "name": "projectleden_project_id_projecten_id_fk",
+          "tableFrom": "projectleden",
+          "tableTo": "projecten",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "projectleden_gebruiker_id_gebruikers_id_fk": {
+          "name": "projectleden_gebruiker_id_gebruikers_id_fk",
+          "tableFrom": "projectleden",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "gebruiker_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "projectleden_project_id_gebruiker_id_pk": {
+          "name": "projectleden_project_id_gebruiker_id_pk",
+          "columns": [
+            "project_id",
+            "gebruiker_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.raakvlak_kanten": {
+      "name": "raakvlak_kanten",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "registratie_id": {
+          "name": "registratie_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "object_id": {
+          "name": "object_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "verantwoordelijke_id": {
+          "name": "verantwoordelijke_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "afgestemd_op": {
+          "name": "afgestemd_op",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "afgestemd_bron": {
+          "name": "afgestemd_bron",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verwerkt_op": {
+          "name": "verwerkt_op",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "raakvlak_kanten_registratie_id_registraties_id_fk": {
+          "name": "raakvlak_kanten_registratie_id_registraties_id_fk",
+          "tableFrom": "raakvlak_kanten",
+          "tableTo": "registraties",
+          "columnsFrom": [
+            "registratie_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "raakvlak_kanten_object_id_objecten_id_fk": {
+          "name": "raakvlak_kanten_object_id_objecten_id_fk",
+          "tableFrom": "raakvlak_kanten",
+          "tableTo": "objecten",
+          "columnsFrom": [
+            "object_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "raakvlak_kanten_verantwoordelijke_id_gebruikers_id_fk": {
+          "name": "raakvlak_kanten_verantwoordelijke_id_gebruikers_id_fk",
+          "tableFrom": "raakvlak_kanten",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "verantwoordelijke_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.rapport_snapshots": {
+      "name": "rapport_snapshots",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "document_id": {
+          "name": "document_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "revisie": {
+          "name": "revisie",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vastgelegd_door": {
+          "name": "vastgelegd_door",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vastgelegd_op": {
+          "name": "vastgelegd_op",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "inhoud": {
+          "name": "inhoud",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "rapport_snapshots_document_id_documenten_id_fk": {
+          "name": "rapport_snapshots_document_id_documenten_id_fk",
+          "tableFrom": "rapport_snapshots",
+          "tableTo": "documenten",
+          "columnsFrom": [
+            "document_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "rapport_snapshots_vastgelegd_door_gebruikers_id_fk": {
+          "name": "rapport_snapshots_vastgelegd_door_gebruikers_id_fk",
+          "tableFrom": "rapport_snapshots",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "vastgelegd_door"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.registratie_bronnen": {
+      "name": "registratie_bronnen",
+      "schema": "",
+      "columns": {
+        "registratie_id": {
+          "name": "registratie_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "melding_id": {
+          "name": "melding_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "registratie_bronnen_registratie_id_registraties_id_fk": {
+          "name": "registratie_bronnen_registratie_id_registraties_id_fk",
+          "tableFrom": "registratie_bronnen",
+          "tableTo": "registraties",
+          "columnsFrom": [
+            "registratie_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "registratie_bronnen_melding_id_meldingen_id_fk": {
+          "name": "registratie_bronnen_melding_id_meldingen_id_fk",
+          "tableFrom": "registratie_bronnen",
+          "tableTo": "meldingen",
+          "columnsFrom": [
+            "melding_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "registratie_bronnen_registratie_id_melding_id_pk": {
+          "name": "registratie_bronnen_registratie_id_melding_id_pk",
+          "columns": [
+            "registratie_id",
+            "melding_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.registratie_koppelingen": {
+      "name": "registratie_koppelingen",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "registratie_id": {
+          "name": "registratie_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "soort": {
+          "name": "soort",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "object_id": {
+          "name": "object_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "objecttype": {
+          "name": "objecttype",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "toepassing": {
+          "name": "toepassing",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bereik_object_id": {
+          "name": "bereik_object_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "te_herkoppelen": {
+          "name": "te_herkoppelen",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "registratie_koppelingen_registratie_id_registraties_id_fk": {
+          "name": "registratie_koppelingen_registratie_id_registraties_id_fk",
+          "tableFrom": "registratie_koppelingen",
+          "tableTo": "registraties",
+          "columnsFrom": [
+            "registratie_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "registratie_koppelingen_object_id_objecten_id_fk": {
+          "name": "registratie_koppelingen_object_id_objecten_id_fk",
+          "tableFrom": "registratie_koppelingen",
+          "tableTo": "objecten",
+          "columnsFrom": [
+            "object_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "registratie_koppelingen_bereik_object_id_objecten_id_fk": {
+          "name": "registratie_koppelingen_bereik_object_id_objecten_id_fk",
+          "tableFrom": "registratie_koppelingen",
+          "tableTo": "objecten",
+          "columnsFrom": [
+            "bereik_object_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.registratie_relaties": {
+      "name": "registratie_relaties",
+      "schema": "",
+      "columns": {
+        "van_id": {
+          "name": "van_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "naar_id": {
+          "name": "naar_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "soort": {
+          "name": "soort",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "registratie_relaties_van_id_registraties_id_fk": {
+          "name": "registratie_relaties_van_id_registraties_id_fk",
+          "tableFrom": "registratie_relaties",
+          "tableTo": "registraties",
+          "columnsFrom": [
+            "van_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "registratie_relaties_naar_id_registraties_id_fk": {
+          "name": "registratie_relaties_naar_id_registraties_id_fk",
+          "tableFrom": "registratie_relaties",
+          "tableTo": "registraties",
+          "columnsFrom": [
+            "naar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "registratie_relaties_van_id_naar_id_soort_pk": {
+          "name": "registratie_relaties_van_id_naar_id_soort_pk",
+          "columns": [
+            "van_id",
+            "naar_id",
+            "soort"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.registraties": {
+      "name": "registraties",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nummer": {
+          "name": "nummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titel": {
+          "name": "titel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "omschrijving": {
+          "name": "omschrijving",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "fase_id": {
+          "name": "fase_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "discipline": {
+          "name": "discipline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "eigenaar_id": {
+          "name": "eigenaar_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aangemaakt_door": {
+          "name": "aangemaakt_door",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aangemaakt_op": {
+          "name": "aangemaakt_op",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "details": {
+          "name": "details",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "goedgekeurd_door": {
+          "name": "goedgekeurd_door",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "goedgekeurd_onder_delegatie": {
+          "name": "goedgekeurd_onder_delegatie",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "goedgekeurd_op": {
+          "name": "goedgekeurd_op",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "afwijs_toelichting": {
+          "name": "afwijs_toelichting",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verwerkt_door": {
+          "name": "verwerkt_door",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verwerkt_op": {
+          "name": "verwerkt_op",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vervangen_door_id": {
+          "name": "vervangen_door_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "registraties_project_id_projecten_id_fk": {
+          "name": "registraties_project_id_projecten_id_fk",
+          "tableFrom": "registraties",
+          "tableTo": "projecten",
+          "columnsFrom": [
+            "project_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "registraties_fase_id_fasen_id_fk": {
+          "name": "registraties_fase_id_fasen_id_fk",
+          "tableFrom": "registraties",
+          "tableTo": "fasen",
+          "columnsFrom": [
+            "fase_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "registraties_eigenaar_id_gebruikers_id_fk": {
+          "name": "registraties_eigenaar_id_gebruikers_id_fk",
+          "tableFrom": "registraties",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "eigenaar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "registraties_aangemaakt_door_gebruikers_id_fk": {
+          "name": "registraties_aangemaakt_door_gebruikers_id_fk",
+          "tableFrom": "registraties",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "aangemaakt_door"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "registraties_goedgekeurd_door_gebruikers_id_fk": {
+          "name": "registraties_goedgekeurd_door_gebruikers_id_fk",
+          "tableFrom": "registraties",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "goedgekeurd_door"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "registraties_verwerkt_door_gebruikers_id_fk": {
+          "name": "registraties_verwerkt_door_gebruikers_id_fk",
+          "tableFrom": "registraties",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "verwerkt_door"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "registraties_vervangen_door_id_registraties_id_fk": {
+          "name": "registraties_vervangen_door_id_registraties_id_fk",
+          "tableFrom": "registraties",
+          "tableTo": "registraties",
+          "columnsFrom": [
+            "vervangen_door_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.voortgang": {
+      "name": "voortgang",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "registratie_id": {
+          "name": "registratie_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tekst": {
+          "name": "tekst",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "door": {
+          "name": "door",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "op": {
+          "name": "op",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "voortgang_registratie_id_registraties_id_fk": {
+          "name": "voortgang_registratie_id_registraties_id_fk",
+          "tableFrom": "voortgang",
+          "tableTo": "registraties",
+          "columnsFrom": [
+            "registratie_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "voortgang_door_gebruikers_id_fk": {
+          "name": "voortgang_door_gebruikers_id_fk",
+          "tableFrom": "voortgang",
+          "tableTo": "gebruikers",
+          "columnsFrom": [
+            "door"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

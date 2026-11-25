@@ -19,6 +19,7 @@ import { logHistorie } from "./historie";
 import { volgendNummer } from "./nummering";
 import { effectieveEigenaarUit, laadObjecten, nakomelingenUit, vooroudersUit, type ObjectRij } from "./objecten";
 import { valideerDetails } from "./velden";
+import { voortgangVan } from "./voortgang";
 import { BEVROREN, Fout, type Actor, type RegistratieType } from "./types";
 
 export type Koppeling =
@@ -149,6 +150,13 @@ export async function werkBij(db: Db, actor: Actor, id: string, patch: Patch, op
   if (!opties.negeerBevroren && (BEVROREN as readonly string[]).includes(r.status)) throw new Fout("Registratie is bevroren");
   if (!opties.negeerBevroren && r.status === "ter_goedkeuring")
     throw new Fout("Registratie staat ter goedkeuring; laat hem eerst afwijzen om te wijzigen");
+  if (!opties.negeerBevroren && r.type === "issue" && r.status === "in_behandeling")
+    throw new Fout("Issue is in behandeling; leg nieuwe informatie vast als voortgang");
+  if (!opties.negeerBevroren && r.type === "issue" && ["opgelost", "vervallen"].includes(r.status)) throw new Fout("Issue is afgerond");
+  if (!opties.negeerBevroren && r.type === "raakvlak") {
+    const kanten = await db.select().from(raakvlakKanten).where(eq(raakvlakKanten.registratieId, id));
+    if (kanten.some((k) => k.afgestemdOp)) throw new Fout("Afstemming is begonnen; de afspraak ligt vast");
+  }
   const details = patch.details ? valideerDetails(r.type, { ...r.details, ...patch.details }) : undefined;
   if (patch.koppelingen) await controleerKoppelingen(db, actor.projectId, patch.koppelingen);
   const set: Partial<typeof registraties.$inferInsert> = {};
@@ -169,9 +177,6 @@ export async function werkBij(db: Db, actor: Actor, id: string, patch: Patch, op
     if (patch.koppelingen.length)
       await db.insert(registratieKoppelingen).values(patch.koppelingen.map((k) => koppelingRij(id, k)));
   }
-  // Een raakvlakafspraak die inhoudelijk verandert, moet opnieuw door alle kanten worden afgestemd.
-  if (r.type === "raakvlak" && (set.titel !== undefined || set.omschrijving !== undefined || set.details))
-    await db.update(raakvlakKanten).set({ afgestemdOp: null, afgestemdBron: null }).where(eq(raakvlakKanten.registratieId, id));
   const oud = Object.fromEntries(Object.keys(set).map((k) => [k, r[k as keyof typeof r]]));
   await logHistorie(db, {
     projectId: actor.projectId,
@@ -348,6 +353,7 @@ export async function haalRegistratie(db: Db, id: string) {
     bronnen: bronnen.map(({ m }) => ({ id: m.id, nummer: m.nummer, titel: m.titel, bronSoort: m.bronSoort, bronRef: m.bronRef })),
     kanten: kanten.map((k) => ({ ...k, object: objectInfo(k.objectId)! })),
     historie: log.map(({ h, naam }) => ({ ...h, naam })),
+    voortgang: await voortgangVan(db, id),
     opgenomenIn: snapshots
       .filter(({ s }) => s.inhoud.some((i) => i.id === id))
       .map(({ s, d }) => ({ documentNummer: d.nummer, revisie: s.revisie, op: s.vastgelegdOp })),

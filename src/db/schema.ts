@@ -241,3 +241,11 @@ export const historie = pgTable("historie", {
   nieuw: jsonb("nieuw"),
   op: nu("op"),
 });
+
+export const voortgang = pgTable("voortgang", {
+  id: id(),
+  registratieId: uuid("registratie_id").notNull().references(() => registraties.id),
+  tekst: text("tekst").notNull(),
+  door: uuid("door").notNull().references(() => gebruikers.id),
+  op: nu("op"),
+});

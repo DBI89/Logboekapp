@@ -78,12 +78,11 @@ describe("review #2: niet bewerken tijdens ter goedkeuring", () => {
 });
 
 describe("review #3: raakvlak wijzigen na akkoord", () => {
-  it("zet eerdere akkoorden terug als de afspraak verandert", async () => {
+  it("weigert wijzigen van de afspraak na het eerste akkoord (ronde 1: bevriezen)", async () => {
     const rv = await maakRaakvlak(db, a(p.teamlid), { titel: "x", omschrijving: "", objectIds: [await id("VN-OV-12"), await id("VN-SP-2")], details: { soort: "fysiek", afspraak: "A" } });
     const [k1] = (await haalRegistratie(db, rv.id)).kanten;
     await kantAfgestemd(db, a(p.ol), k1.id);
-    await werkBij(db, a(p.teamlid), rv.id, { details: { afspraak: "B" } });
-    expect((await haalRegistratie(db, rv.id)).kanten.every((k) => k.afgestemdOp === null)).toBe(true);
+    await expect(werkBij(db, a(p.teamlid), rv.id, { details: { afspraak: "B" } })).rejects.toThrow("Afstemming is begonnen");
   });
 });
 

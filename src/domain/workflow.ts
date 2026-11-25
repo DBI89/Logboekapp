@@ -108,7 +108,9 @@ export async function zetInstemming(db: Db, actor: Actor, id: string, instemming
 export async function tekstcorrectie(db: Db, actor: Actor, id: string, patch: Pick<Patch, "titel" | "omschrijving" | "details">): Promise<void> {
   if (!(await isOntwerpleider(db, actor))) throw new Fout("Alleen de ontwerpleider mag een tekstcorrectie doen");
   const r = await laad(db, actor, id);
-  if (!["goedgekeurd", "verwerkt", "afgestemd", "vastgesteld"].includes(r.status))
+  const correctieStatus = ["goedgekeurd", "verwerkt", "afgestemd", "vastgesteld", "in_behandeling", "opgelost", "vervallen"];
+  const raakvlakInAfstemming = r.type === "raakvlak" && r.status === "concept";
+  if (!correctieStatus.includes(r.status) && !raakvlakInAfstemming)
     throw new Fout("Tekstcorrectie alleen op een vastgelegde registratie");
   await werkBij(db, actor, id, { titel: patch.titel, omschrijving: patch.omschrijving, details: patch.details }, { actie: "tekstcorrectie", negeerBevroren: true });
 }

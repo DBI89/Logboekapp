@@ -85,6 +85,10 @@ export const KOLOMMEN: Record<RegistratieType, Kolom[]> = {
     veld("Prioriteit", "prioriteit"),
     veld("Gevolg", "gevolg"),
     {
+      kop: "Laatste voortgang",
+      waarde: (r) => (r.voortgang[0] ? `${r.voortgang[0].op.toLocaleDateString("nl-NL")}: ${r.voortgang[0].tekst}` : ""),
+    },
+    {
       kop: "Opgelost door",
       waarde: (r) => r.relaties.filter((x) => x.soort === "lost_op" && x.richting === "uit").map((x) => x.nummer).join(", "),
     },
