@@ -75,6 +75,15 @@ describe("beoordelen", () => {
     await expect(zetOm(db, oc(), m.id, [{ type: "issue" }])).rejects.toThrow("Melding is al beoordeeld");
   });
 
+  it("omzetten naar raakvlakafspraak maakt kanten per object", async () => {
+    const m = await meld(db, tl(), { titel: "Oplegging", omschrijving: "x", objectIds: [await id("VN-OV-12"), await id("VN-SP-2")] });
+    const [rv] = await zetOm(db, oc(), m.id, [{ type: "raakvlak" }]);
+    const { haalRegistratie } = await import("@/domain/registraties");
+    expect((await haalRegistratie(db, rv.id)).kanten).toHaveLength(2);
+    const m2 = await meld(db, tl(), { titel: "Eén object", omschrijving: "x", objectIds: [await id("VN-OV-12")] });
+    await expect(zetOm(db, oc(), m2.id, [{ type: "raakvlak" }])).rejects.toThrow("Kies minstens twee objecten");
+  });
+
   it("samenvoegen voegt een bron toe", async () => {
     const r = await maakRegistratie(db, tl(), { type: "issue", titel: "Kabels", omschrijving: "", koppelingen: [] });
     const m = await meld(db, tl(), { titel: "Kabels", omschrijving: "nog eens" });

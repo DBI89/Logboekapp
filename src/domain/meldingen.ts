@@ -7,6 +7,7 @@ import { laadObjecten, type ObjectRij } from "./objecten";
 import { magBeoordelen } from "./rechten";
 import { actieveFase, maakRegistratie, type Koppeling } from "./registraties";
 import { Fout, type Actor, type RegistratieType } from "./types";
+import { maakRaakvlak } from "./raakvlakken";
 
 export type MeldingRij = {
   id: string;
@@ -113,17 +114,31 @@ export async function zetOm(
   const objectIds = (await db.select().from(meldingObjecten).where(eq(meldingObjecten.meldingId, meldingId))).map((x) => x.objectId);
   const standaard: Koppeling[] = objectIds.map((objectId) => ({ soort: "exemplaar", objectId }));
   const uit = [];
-  for (const d of doelen)
+  for (const d of doelen) {
+    const koppelingen = d.koppelingen ?? standaard;
+    if (d.type === "raakvlak") {
+      uit.push(
+        await maakRaakvlak(db, actor, {
+          titel: d.titel?.trim() || m.titel,
+          omschrijving: m.omschrijving,
+          objectIds: koppelingen.flatMap((k) => (k.soort === "exemplaar" ? [k.objectId] : [])),
+          details: {},
+          bronMeldingIds: [m.id],
+        }),
+      );
+      continue;
+    }
     uit.push(
       await maakRegistratie(db, actor, {
         type: d.type,
         titel: d.titel?.trim() || m.titel,
         omschrijving: m.omschrijving,
         faseId: m.faseId,
-        koppelingen: d.koppelingen ?? standaard,
+        koppelingen,
         bronMeldingIds: [m.id],
       }),
     );
+  }
   await db.update(meldingen).set({ status: "omgezet", beoordeeldDoor: actor.gebruikerId }).where(eq(meldingen.id, m.id));
   await logHistorie(db, {
     projectId: actor.projectId,

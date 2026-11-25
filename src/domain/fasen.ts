@@ -39,7 +39,7 @@ export async function vervang(
       titel,
       omschrijving,
       objectIds,
-      details: details as { soort: "fysiek"; afspraak: string },
+      details: details as { soort?: "fysiek"; afspraak?: string },
     });
   } else {
     const koppelingen =

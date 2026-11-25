@@ -12,7 +12,7 @@ export function GebruikerWissel({ leden, huidig }: { leden: Lid[]; huidig: strin
       <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-white/70">Ingelogd als (demo)</span>
       <select
         aria-label="Wissel van gebruiker"
-        className="w-full rounded-md border border-white/30 bg-white/10 px-2 py-2 text-sm text-white outline-none focus:border-mint"
+        className="w-full rounded-md border border-white/30 bg-white/10 px-2 py-2 text-xs text-white outline-none focus:border-mint"
         value={huidig}
         disabled={bezig}
         onChange={(e) => start(() => wisselGebruiker(e.target.value))}

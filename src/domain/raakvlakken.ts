@@ -12,7 +12,7 @@ export type RaakvlakInvoer = {
   titel: string;
   omschrijving: string;
   objectIds: string[];
-  details: { soort: "fysiek" | "functioneel" | "ruimtelijk"; afspraak: string };
+  details: { soort?: "fysiek" | "functioneel" | "ruimtelijk"; afspraak?: string };
   bronMeldingIds?: string[];
 };
 

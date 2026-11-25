@@ -347,3 +347,11 @@ export async function haalRegistratie(db: Db, id: string) {
 }
 
 export type RegistratieDetail = Awaited<ReturnType<typeof haalRegistratie>>;
+
+export async function registratieIdVanNummer(db: Db, projectId: string, nummer: string): Promise<string | null> {
+  const [r] = await db
+    .select({ id: registraties.id })
+    .from(registraties)
+    .where(and(eq(registraties.projectId, projectId), eq(registraties.nummer, nummer)));
+  return r?.id ?? null;
+}
