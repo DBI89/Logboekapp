@@ -16,7 +16,7 @@ const tabel = (koppen: string[], rijen: string[][]) =>
     rows: [new TableRow({ tableHeader: true, children: koppen.map((k) => cel(k, true)) }), ...rijen.map((r) => new TableRow({ children: r.map((c) => cel(c)) }))],
   });
 
-export async function exporteerDocx(inhoud: RapportInhoud, doc: DocInfo): Promise<Buffer> {
+export async function exporteerDocx(inhoud: RapportInhoud, doc: DocInfo): Promise<Uint8Array> {
   const delen: (Paragraph | Table)[] = [
     new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun(`Registraties ${doc.nummer} ${doc.titel} rev. ${doc.revisie}`)] }),
   ];
@@ -35,10 +35,10 @@ export async function exporteerDocx(inhoud: RapportInhoud, doc: DocInfo): Promis
       ),
     );
   }
-  return Packer.toBuffer(new Document({ sections: [{ children: delen }] }));
+  return new Uint8Array(await Packer.toArrayBuffer(new Document({ sections: [{ children: delen }] })));
 }
 
-export async function exporteerXlsx(inhoud: RapportInhoud, doc: DocInfo): Promise<Buffer> {
+export async function exporteerXlsx(inhoud: RapportInhoud, doc: DocInfo): Promise<Uint8Array> {
   const wb = new ExcelJS.Workbook();
   wb.title = `${doc.nummer} rev. ${doc.revisie}`;
   for (const t of TYPE_VOLGORDE) {
@@ -55,5 +55,5 @@ export async function exporteerXlsx(inhoud: RapportInhoud, doc: DocInfo): Promis
     for (const v of inhoud.vervangen) ws.addRow([v.oud.nummer, v.oud.faseCode, v.oud.titel, v.nieuw.nummer, v.nieuw.titel]);
   }
   if (!wb.worksheets.length) wb.addWorksheet("Leeg").addRow(["Geen registraties voor dit document"]);
-  return Buffer.from(await wb.xlsx.writeBuffer());
+  return new Uint8Array(await wb.xlsx.writeBuffer());
 }

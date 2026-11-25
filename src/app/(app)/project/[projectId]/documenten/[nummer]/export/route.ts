@@ -14,7 +14,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ projectI
   const info = { nummer: doc.nummer, titel: doc.titel, revisie: doc.revisie };
   const buf = formaat === "docx" ? await exporteerDocx(inhoud, info) : await exporteerXlsx(inhoud, info);
   const type = formaat === "docx" ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-  return new Response(new Uint8Array(buf), {
+  return new Response(buf as BodyInit, {
     headers: { "Content-Type": type, "Content-Disposition": `attachment; filename="${doc.nummer}-rev${doc.revisie}-registraties.${formaat}"` },
   });
 }

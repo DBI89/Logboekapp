@@ -74,7 +74,7 @@ describe("export", () => {
     const inhoud = await rapportInhoud(db, docId);
     const doc = { nummer: "VN-NOT-002", titel: "Ontwerpnota Viaduct Noord DO", revisie: "0" };
     const docx = await exporteerDocx(inhoud, doc);
-    expect(docx.subarray(0, 2).toString()).toBe("PK");
+    expect(Buffer.from(docx.subarray(0, 2)).toString()).toBe("PK");
     const xml = await (await JSZip.loadAsync(docx)).file("word/document.xml")!.async("string");
     expect(xml).toContain("AF-0001");
     expect(xml).toContain("Afwijkingen");
@@ -83,7 +83,7 @@ describe("export", () => {
 
     const xlsx = await exporteerXlsx(inhoud, doc);
     const wb = new ExcelJS.Workbook();
-    await wb.xlsx.load(xlsx as unknown as ArrayBuffer);
+    await wb.xlsx.load(Buffer.from(xlsx) as unknown as ArrayBuffer);
     const ws = wb.getWorksheet("Afwijkingen")!;
     expect(ws.getRow(1).getCell(1).value).toBe("Nr.");
     expect(ws.getRow(2).getCell(1).value).toBe("AF-0001");

@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { tekstHash } from "./hash";
 import { and, desc, eq } from "drizzle-orm";
 import type { Db } from "@/db/client";
 import { documenten, documentObjecten, documentUitsluitingen, rapportSnapshots, registraties } from "@/db/schema";
@@ -183,7 +183,7 @@ function snapshotRegels(inhoud: RapportInhoud) {
   return TYPE_VOLGORDE.flatMap((t) =>
     inhoud.perType[t].map((r) => {
       const waarden = Object.fromEntries(KOLOMMEN[t].map((k) => [k.kop, k.waarde(r)]));
-      return { id: r.id, nummer: r.nummer, status: r.status, hash: createHash("sha256").update(JSON.stringify(waarden)).digest("hex"), waarden };
+      return { id: r.id, nummer: r.nummer, status: r.status, hash: tekstHash(JSON.stringify(waarden)), waarden };
     }),
   );
 }

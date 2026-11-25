@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "seed": "tsx src/seed/demo.ts",
+    "seed": "tsx src/seed/cli.ts",
     "e2e": "playwright test --trace off"
   },
   "dependencies": {

@@ -1,5 +1,3 @@
-import { readFileSync, rmSync } from "node:fs";
-import path from "node:path";
 import { eq } from "drizzle-orm";
 import type { Db } from "@/db/client";
 import { delegaties, documenten, documentObjecten, fasen, gebruikers, meldingen, projecten, projectleden } from "@/db/schema";
@@ -12,8 +10,9 @@ import { meld, parseSnelinvoer } from "@/domain/meldingen";
 import { legRevisieVast } from "@/domain/rapport";
 import { haalRegistratie } from "@/domain/registraties";
 
-const DATA = path.join(process.cwd(), "src", "seed", "data");
-export const leesCsv = (naam: "so" | "do") => readFileSync(path.join(DATA, `${naam}.csv`), "utf8");
+import { SO_CSV, DO_CSV } from "./data/csv";
+
+export const leesCsv = (naam: "so" | "do") => (naam === "so" ? SO_CSV : DO_CSV);
 
 export async function seedDemo(db: Db) {
   const g = await db
@@ -170,14 +169,3 @@ export async function seedDemo(db: Db) {
 
   return { projectId, gebruikers: { ol, oc, constructeur, wegontwerper, installatie } };
 }
-
-async function main() {
-  const map = path.join(process.cwd(), ".data", "pglite");
-  rmSync(map, { recursive: true, force: true });
-  const { openPglite } = await import("@/db/client");
-  const db = await openPglite(map);
-  await seedDemo(db);
-  console.log("Demo-project aangemaakt: P-2026-014");
-}
-
-if (process.argv[1]?.endsWith("demo.ts")) main().then(() => process.exit(0), (e) => { console.error(e); process.exit(1); });

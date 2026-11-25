@@ -7,6 +7,15 @@ import { zetEigenaar } from "@/domain/objecten";
 import { haalRegistratie } from "@/domain/registraties";
 import { eq } from "drizzle-orm";
 
+describe("demodata", () => {
+  it("ingebouwde CSV-tekst is gelijk aan de CSV-bestanden", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { SO_CSV, DO_CSV } = await import("@/seed/data/csv");
+    expect(SO_CSV).toBe(readFileSync("src/seed/data/so.csv", "utf8"));
+    expect(DO_CSV).toBe(readFileSync("src/seed/data/do.csv", "utf8"));
+  });
+});
+
 describe("seedDemo", () => {
   it("vult het demoproject", async () => {
     const db = await maakTestDb();
