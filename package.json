@@ -10,7 +10,9 @@
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "seed": "tsx src/seed/cli.ts",
-    "e2e": "playwright test --trace off"
+    "e2e": "playwright test --trace off",
+    "build:browser": "vite build",
+    "preview:browser": "vite preview --port 4173"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.14.0",
@@ -30,16 +32,19 @@
     "@eslint/eslintrc": "^3",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4",
+    "@tailwindcss/vite": "^4.3.5",
     "@types/node": "^20",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.7.0",
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "15.5.29",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",
+    "vite": "^6.4.6",
     "vitest": "^3.2.7"
   }
 }

@@ -54,3 +54,7 @@ npm run e2e
 `npm test` draait de domeintests (Vitest, in-memory PGlite). `npm run e2e` seedt, bouwt en speelt het demoscenario na in Chromium.
 
 Structuur: `src/domain` bevat alle regels (rechten, workflow, import, rapport); `src/app` de schermen en server-acties; `src/db/schema.ts` het datamodel.
+
+## Browserversie (demo als link)
+
+`npm run build:browser` maakt in `.data/browser-dist` een versie die volledig in de browser draait: dezelfde schermen en domeincode, met de database (PGlite) in de browser. Vite vervangt daarbij alleen de Next-onderdelen (zie `vite.config.ts` en `browser/shims`). Gegevens blijven per kijker in de browser bewaard; de knop *Beginstand herstellen* wist ze. Bekijk lokaal met `npm run preview:browser`.
