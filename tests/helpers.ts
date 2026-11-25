@@ -30,3 +30,21 @@ export async function maakBasisProject(db: Db, nummer = "P-1") {
 }
 
 export const actorVan = (projectId: string, gebruikerId: string) => ({ projectId, gebruikerId });
+
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { parseObjectCsv, voerImportUit } from "@/domain/import";
+import { objectIdVanCode } from "@/domain/objecten";
+
+/** Importeert de SO- of DO-structuur uit de fixtures en geeft code → id. */
+export async function metObjecten(
+  db: Db,
+  p: Awaited<ReturnType<typeof maakBasisProject>>,
+  bestand: "so" | "do" = "do",
+) {
+  const { regels, fouten } = parseObjectCsv(readFileSync(path.join(__dirname, "fixtures", `${bestand}.csv`), "utf8"));
+  if (fouten.length) throw new Error(fouten.join("\n"));
+  await voerImportUit(db, actorVan(p.projectId, p.ol), bestand === "so" ? p.fase.SO : p.fase.DO, bestand, regels);
+  const id = (code: string) => objectIdVanCode(db, p.projectId, code);
+  return id;
+}
