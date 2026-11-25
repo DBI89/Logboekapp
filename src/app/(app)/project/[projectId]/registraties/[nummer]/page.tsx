@@ -67,7 +67,7 @@ export default async function RegistratieDetail({ params }: { params: Promise<{ 
       {lopendeVervanging && <p className="rounded-md bg-amber-50 p-3 text-sm text-oranje">Er loopt een vervanging voor deze registratie (zie relaties).</p>}
 
       <RegistratieActies projectId={projectId} id={r.id} mag={mag} registraties={registraties} />
-      <RegistratieFormulier projectId={projectId} id={r.id} type={r.type} titel={r.titel} omschrijving={r.omschrijving} details={details} bewerkbaar={!bevroren && r.status !== "vervangen"} correctie={bevroren && ol && r.status !== "vervangen"} />
+      <RegistratieFormulier projectId={projectId} id={r.id} type={r.type} titel={r.titel} omschrijving={r.omschrijving} details={details} bewerkbaar={!bevroren && r.status !== "vervangen" && r.status !== "ter_goedkeuring"} correctie={bevroren && ol && r.status !== "vervangen"} />
       {goedkeurType && <InstemmingFormulier projectId={projectId} id={r.id} waarde={details.instemming as Instemming | undefined} bewerkbaar={r.status !== "vervangen"} />}
 
       {r.type === "raakvlak" ? (
@@ -92,7 +92,7 @@ export default async function RegistratieDetail({ params }: { params: Promise<{ 
         <KoppelingBewerken
           projectId={projectId}
           id={r.id}
-          bewerkbaar={!bevroren && r.status !== "vervangen"}
+          bewerkbaar={!bevroren && r.status !== "vervangen" && r.status !== "ter_goedkeuring"}
           objecten={objecten}
           huidig={r.koppelingen.map((k) => ({
             soort: k.soort,

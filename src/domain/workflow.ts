@@ -56,6 +56,8 @@ export async function keurGoed(db: Db, actor: Actor, id: string): Promise<void> 
   overgang(r, ["ter_goedkeuring"], "goedgekeurd");
   const mag = await magGoedkeuren(db, actor, r);
   if (!mag.ok) throw new Fout(mag.reden);
+  const ontbreekt = ontbrekendeVelden(r.type, r.details);
+  if (ontbreekt.length) throw new Fout(`Ontbrekende velden: ${ontbreekt.map((v) => VELD_LABEL[v] ?? v).join(", ")}`);
   const onderDelegatie = !(await isOntwerpleider(db, actor));
   await zetStatus(
     db,

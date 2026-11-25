@@ -135,6 +135,10 @@ export async function zetEigenaar(db: Db, actor: { projectId: string; gebruikerI
   if (!(await isOntwerpleider(db, actor))) throw new Fout("Alleen de ontwerpleider wijst objecteigenaren aan");
   const [o] = await db.select().from(objecten).where(eq(objecten.id, objectId));
   if (!o || o.projectId !== actor.projectId) throw new Fout("Object bestaat niet");
+  if (eigenaarId) {
+    const { rolVan } = await import("./rechten");
+    if (!(await rolVan(db, { projectId: actor.projectId, gebruikerId: eigenaarId }))) throw new Fout("Eigenaar moet lid van het project zijn");
+  }
   await db.update(objecten).set({ eigenaarId }).where(eq(objecten.id, objectId));
   await logHistorie(db, { projectId: actor.projectId, gebruikerId: actor.gebruikerId, entiteit: "object", entiteitId: objectId, actie: "eigenaar", oud: { eigenaarId: o.eigenaarId }, nieuw: { eigenaarId } });
 }

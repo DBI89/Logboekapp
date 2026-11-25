@@ -1,11 +1,11 @@
 import Papa from "papaparse";
 import { and, eq, inArray } from "drizzle-orm";
 import type { Db } from "@/db/client";
-import { objectImports, objecten, registraties, registratieKoppelingen } from "@/db/schema";
-import { isOntwerpleider } from "./rechten";
+import { fasen, objectImports, objecten, raakvlakKanten, registraties, registratieKoppelingen } from "@/db/schema";
+import { isOntwerpleider, magBeoordelen } from "./rechten";
 import { logHistorie } from "./historie";
-import { laadObjecten, nakomelingenUit } from "./objecten";
-import { Fout, type Actor } from "./types";
+import { effectieveEigenaarUit, laadObjecten, nakomelingenUit } from "./objecten";
+import { BEVROREN, Fout, type Actor } from "./types";
 
 export type ImportRegel = {
   code: string;
@@ -141,6 +141,8 @@ export async function voerImportUit(
   regels: ImportRegel[],
 ): Promise<{ importId: string; teHerkoppelen: number }> {
   if (!(await isOntwerpleider(db, actor))) throw new Fout("Alleen de ontwerpleider mag importeren");
+  const [fase] = await db.select().from(fasen).where(eq(fasen.id, faseId));
+  if (!fase || fase.projectId !== actor.projectId) throw new Fout("Fase hoort niet bij dit project");
   const codes = new Set(regels.map((r) => r.code));
   for (const r of regels)
     if (r.ouderCode && !codes.has(r.ouderCode)) throw new Fout(`Onbekende ouder_code "${r.ouderCode}" bij ${r.code}`);
@@ -262,8 +264,13 @@ export async function teHerkoppelen(
 }
 
 export async function herkoppel(db: Db, actor: Actor, koppelingId: string, nieuwObjectId: string): Promise<void> {
+  if (!(await magBeoordelen(db, actor))) throw new Fout("Alleen ontwerpleider of ontwerpcoördinator mag herkoppelen");
   const [k] = await db.select().from(registratieKoppelingen).where(eq(registratieKoppelingen.id, koppelingId));
   if (!k) throw new Fout("Koppeling bestaat niet");
+  const [r] = await db.select().from(registraties).where(eq(registraties.id, k.registratieId));
+  if (!r || r.projectId !== actor.projectId) throw new Fout("Registratie hoort niet bij dit project");
+  // Een vastgelegde registratie mag alleen worden herkoppeld als het object is verdwenen.
+  if (!k.teHerkoppelen && (BEVROREN as readonly string[]).includes(r.status)) throw new Fout("Registratie is bevroren");
   const [o] = await db.select().from(objecten).where(eq(objecten.id, nieuwObjectId));
   if (!o?.actief || o.projectId !== actor.projectId) throw new Fout("Kies een bestaand object");
   const veld = k.soort === "type" ? { bereikObjectId: nieuwObjectId } : { objectId: nieuwObjectId };
@@ -271,6 +278,13 @@ export async function herkoppel(db: Db, actor: Actor, koppelingId: string, nieuw
     .update(registratieKoppelingen)
     .set({ ...veld, teHerkoppelen: false })
     .where(eq(registratieKoppelingen.id, koppelingId));
+  if (r.type === "raakvlak" && k.soort === "exemplaar" && k.objectId) {
+    const alle = new Map((await laadObjecten(db, actor.projectId, false)).map((x) => [x.id, x]));
+    await db
+      .update(raakvlakKanten)
+      .set({ objectId: nieuwObjectId, verantwoordelijkeId: effectieveEigenaarUit(alle, nieuwObjectId) })
+      .where(and(eq(raakvlakKanten.registratieId, r.id), eq(raakvlakKanten.objectId, k.objectId)));
+  }
   await logHistorie(db, {
     projectId: actor.projectId,
     gebruikerId: actor.gebruikerId,
@@ -303,6 +317,7 @@ export async function dieperVoorstellen(
   const uit = [];
   for (const { k, r } of rijen) {
     if (!k.objectId || k.teHerkoppelen || !perId.has(k.objectId)) continue;
+    if (r.type === "raakvlak" || (BEVROREN as readonly string[]).includes(r.status) || ["opgelost", "vervallen"].includes(r.status)) continue;
     const tekst = new Set(woorden(`${r.titel} ${r.omschrijving}`));
     const treffers = nakomelingenUit(alle, k.objectId).filter((id) => {
       const o = perId.get(id)!;

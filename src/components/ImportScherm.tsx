@@ -11,6 +11,7 @@ type Dieper = { koppelingId: string; registratieNummer: string; huidigCode: stri
 export function ImportScherm(p: {
   projectId: string;
   ol: boolean;
+  magHerkoppelen: boolean;
   fasen: { id: string; code: string }[];
   actieveFaseId: string;
   voorbeeld: string;
@@ -75,7 +76,7 @@ export function ImportScherm(p: {
           {p.herkoppelen.map((h) => (
             <li key={h.koppelingId} className="flex flex-wrap items-center gap-2 py-3 text-sm">
               <span className="font-mono">{h.nummer}</span> was gekoppeld aan <span className="font-mono">{h.objectCode}</span> {h.objectNaam}
-              <span className="ml-auto flex flex-wrap gap-2">
+              {p.magHerkoppelen && <span className="ml-auto flex flex-wrap gap-2">
                 {h.voorstellen.map((v) => (
                   <button key={v.objectId} className="knop-licht" disabled={bezig} onClick={() => voerUit(() => herkoppelActie(p.projectId, h.koppelingId, v.objectId))}>→ {v.code}</button>
                 ))}
@@ -84,14 +85,14 @@ export function ImportScherm(p: {
                   {p.objecten.filter((o) => o.niveau <= 3).map((o) => <option key={o.id} value={o.id}>{o.code} {o.naam}</option>)}
                 </select>
                 <button className="knop" disabled={bezig || !keuze[h.koppelingId]} onClick={() => voerUit(() => herkoppelActie(p.projectId, h.koppelingId, keuze[h.koppelingId]))}>Koppel</button>
-              </span>
+              </span>}
             </li>
           ))}
           {!p.herkoppelen.length && <li className="py-3 text-sm text-grijs">Niets te herkoppelen.</li>}
         </ul>
       </section>
 
-      {p.dieper.length > 0 && (
+      {p.magHerkoppelen && p.dieper.length > 0 && (
         <section className="kaart p-5">
           <h2 className="font-semibold">Voorstellen: naar een dieper object</h2>
           <p className="text-sm text-grijs">De tekst van deze registraties gaat over een onderdeel dat nu als apart object bestaat.</p>

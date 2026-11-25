@@ -3,7 +3,7 @@ import { getDb } from "@/db/client";
 import { fasen, projecten } from "@/db/schema";
 import { teHerkoppelen, dieperVoorstellen } from "@/domain/import";
 import { objectBoom } from "@/domain/objecten";
-import { isOntwerpleider } from "@/domain/rechten";
+import { isOntwerpleider, magBeoordelen } from "@/domain/rechten";
 import { huidigeActor } from "@/lib/sessie";
 import { plat } from "@/lib/objectenlijst";
 import { leesCsv } from "@/seed/demo";
@@ -24,6 +24,7 @@ export default async function Import({ params }: { params: Promise<{ projectId: 
       <ImportScherm
         projectId={projectId}
         ol={await isOntwerpleider(db, actor)}
+        magHerkoppelen={await magBeoordelen(db, actor)}
         fasen={projectFasen.map((f) => ({ id: f.id, code: f.code }))}
         actieveFaseId={project.actieveFaseId!}
         voorbeeld={leesCsv("do")}

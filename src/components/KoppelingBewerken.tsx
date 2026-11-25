@@ -31,7 +31,7 @@ export function KoppelingBewerken({ projectId, id, huidig, objecten, bewerkbaar 
             {k.soort === "type" && <span className="font-semibold">Type:</span>}
             {k.tekst}
             {k.teHerkoppelen && " (te herkoppelen)"}
-            {bewerken && <button aria-label={`Verwijder ${k.tekst}`} className="ml-1 hover:text-rood" onClick={() => setLijst(lijst.filter((_, j) => j !== i))}>✕</button>}
+            {bewerken && !k.teHerkoppelen && <button aria-label={`Verwijder ${k.tekst}`} className="ml-1 hover:text-rood" onClick={() => setLijst(lijst.filter((_, j) => j !== i))}>✕</button>}
           </li>
         ))}
         {!lijst.length && <li className="text-sm text-grijs">Nog geen objecten gekoppeld.</li>}
@@ -79,9 +79,10 @@ export function KoppelingBewerken({ projectId, id, huidig, objecten, bewerkbaar 
             </div>
           </div>
           <div className="md:col-span-2">
+            {lijst.some((x) => x.teHerkoppelen) && <p className="text-xs text-oranje">Een te herkoppelen object verplaats je via Import.</p>}
             <Foutmelding fout={fout} />
             <div className="mt-2 flex gap-2">
-              <button className="knop" disabled={bezig} onClick={() => voerUit(() => slaRegistratieOp(projectId, id, { koppelingen: lijst.map(naarKoppeling) }, false), () => setBewerken(false))}>Opslaan</button>
+              <button className="knop" disabled={bezig} onClick={() => voerUit(() => slaRegistratieOp(projectId, id, { koppelingen: lijst.filter((x) => !x.teHerkoppelen).map(naarKoppeling) }, false), () => setBewerken(false))}>Opslaan</button>
               <button className="knop-licht" onClick={() => { setLijst(huidig); setBewerken(false); }}>Annuleren</button>
             </div>
           </div>

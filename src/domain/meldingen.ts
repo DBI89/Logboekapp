@@ -31,6 +31,11 @@ export async function meld(
 ): Promise<{ id: string; nummer: string }> {
   if (!input.titel?.trim()) throw new Fout("Titel is verplicht");
   if (!input.omschrijving?.trim()) throw new Fout("Omschrijving is verplicht");
+  const ids = [...new Set(input.objectIds ?? [])];
+  if (ids.length) {
+    const actief = new Set((await laadObjecten(db, actor.projectId)).map((o) => o.id));
+    if (ids.some((i) => !actief.has(i))) throw new Fout("Object bestaat niet of is niet actief");
+  }
   const nummer = await volgendNummer(db, actor.projectId, "melding");
   const [m] = await db
     .insert(meldingen)
@@ -45,7 +50,6 @@ export async function meld(
       gemeldDoor: actor.gebruikerId,
     })
     .returning({ id: meldingen.id });
-  const ids = [...new Set(input.objectIds ?? [])];
   if (ids.length) await db.insert(meldingObjecten).values(ids.map((objectId) => ({ meldingId: m.id, objectId })));
   await logHistorie(db, {
     projectId: actor.projectId,
@@ -109,8 +113,17 @@ export async function zetOm(
   meldingId: string,
   doelen: { type: RegistratieType; titel?: string; koppelingen?: Koppeling[] }[],
 ): Promise<{ id: string; nummer: string }[]> {
-  const m = await haalMelding(db, actor, meldingId);
   if (!doelen.length) throw new Fout("Kies minstens één registratietype");
+  return db.transaction(async (txRaw) => zetOmIn(txRaw as unknown as Db, actor, meldingId, doelen));
+}
+
+async function zetOmIn(
+  db: Db,
+  actor: Actor,
+  meldingId: string,
+  doelen: { type: RegistratieType; titel?: string; koppelingen?: Koppeling[] }[],
+): Promise<{ id: string; nummer: string }[]> {
+  const m = await haalMelding(db, actor, meldingId);
   const objectIds = (await db.select().from(meldingObjecten).where(eq(meldingObjecten.meldingId, meldingId))).map((x) => x.objectId);
   const standaard: Koppeling[] = objectIds.map((objectId) => ({ soort: "exemplaar", objectId }));
   const uit = [];

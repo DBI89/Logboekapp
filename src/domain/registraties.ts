@@ -147,7 +147,10 @@ export async function werkBij(db: Db, actor: Actor, id: string, patch: Patch, op
   const r = await haalRij(db, id);
   if (r.projectId !== actor.projectId) throw new Fout("Registratie hoort niet bij dit project");
   if (!opties.negeerBevroren && (BEVROREN as readonly string[]).includes(r.status)) throw new Fout("Registratie is bevroren");
+  if (!opties.negeerBevroren && r.status === "ter_goedkeuring")
+    throw new Fout("Registratie staat ter goedkeuring; laat hem eerst afwijzen om te wijzigen");
   const details = patch.details ? valideerDetails(r.type, { ...r.details, ...patch.details }) : undefined;
+  if (patch.koppelingen) await controleerKoppelingen(db, actor.projectId, patch.koppelingen);
   const set: Partial<typeof registraties.$inferInsert> = {};
   if (patch.titel !== undefined) {
     if (!patch.titel.trim()) throw new Fout("Titel is verplicht");
@@ -159,11 +162,16 @@ export async function werkBij(db: Db, actor: Actor, id: string, patch: Patch, op
   if (patch.discipline !== undefined) set.discipline = patch.discipline;
   if (Object.keys(set).length) await db.update(registraties).set(set).where(eq(registraties.id, id));
   if (patch.koppelingen) {
-    await controleerKoppelingen(db, actor.projectId, patch.koppelingen);
-    await db.delete(registratieKoppelingen).where(eq(registratieKoppelingen.registratieId, id));
+    // Koppelingen die na een import te herkoppelen zijn, blijven staan tot ze via Import zijn verplaatst.
+    await db
+      .delete(registratieKoppelingen)
+      .where(and(eq(registratieKoppelingen.registratieId, id), eq(registratieKoppelingen.teHerkoppelen, false)));
     if (patch.koppelingen.length)
       await db.insert(registratieKoppelingen).values(patch.koppelingen.map((k) => koppelingRij(id, k)));
   }
+  // Een raakvlakafspraak die inhoudelijk verandert, moet opnieuw door alle kanten worden afgestemd.
+  if (r.type === "raakvlak" && (set.titel !== undefined || set.omschrijving !== undefined || set.details))
+    await db.update(raakvlakKanten).set({ afgestemdOp: null, afgestemdBron: null }).where(eq(raakvlakKanten.registratieId, id));
   const oud = Object.fromEntries(Object.keys(set).map((k) => [k, r[k as keyof typeof r]]));
   await logHistorie(db, {
     projectId: actor.projectId,

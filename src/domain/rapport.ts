@@ -107,10 +107,16 @@ export type RapportInhoud = {
   uitgesloten: { registratie: { id: string; nummer: string; titel: string }; reden: string }[];
 };
 
-async function haalDocument(db: Db, documentId: string) {
+async function haalDocument(db: Db, documentId: string, projectId?: string) {
   const [doc] = await db.select().from(documenten).where(eq(documenten.id, documentId));
   if (!doc) throw new Fout("Document bestaat niet");
+  if (projectId && doc.projectId !== projectId) throw new Fout("Document hoort niet bij dit project");
   return doc;
+}
+
+async function controleerRegistratie(db: Db, registratieId: string, projectId: string) {
+  const [r] = await db.select({ projectId: registraties.projectId }).from(registraties).where(eq(registraties.id, registratieId));
+  if (!r || r.projectId !== projectId) throw new Fout("Registratie hoort niet bij dit project");
 }
 
 export async function rapportInhoud(db: Db, documentId: string): Promise<RapportInhoud> {
@@ -153,7 +159,8 @@ export async function rapportInhoud(db: Db, documentId: string): Promise<Rapport
 
 export async function sluitUit(db: Db, actor: Actor, documentId: string, registratieId: string, reden: string): Promise<void> {
   if (!reden?.trim()) throw new Fout("Reden is verplicht");
-  const doc = await haalDocument(db, documentId);
+  const doc = await haalDocument(db, documentId, actor.projectId);
+  await controleerRegistratie(db, registratieId, actor.projectId);
   await db
     .insert(documentUitsluitingen)
     .values({ documentId, registratieId, reden: reden.trim(), door: actor.gebruikerId })
@@ -165,7 +172,7 @@ export async function sluitUit(db: Db, actor: Actor, documentId: string, registr
 }
 
 export async function neemOp(db: Db, actor: Actor, documentId: string, registratieId: string): Promise<void> {
-  const doc = await haalDocument(db, documentId);
+  const doc = await haalDocument(db, documentId, actor.projectId);
   await db
     .delete(documentUitsluitingen)
     .where(and(eq(documentUitsluitingen.documentId, documentId), eq(documentUitsluitingen.registratieId, registratieId)));
@@ -183,7 +190,7 @@ function snapshotRegels(inhoud: RapportInhoud) {
 
 export async function legRevisieVast(db: Db, actor: Actor, documentId: string, revisie: string): Promise<{ snapshotId: string }> {
   if (!revisie?.trim()) throw new Fout("Revisie is verplicht");
-  const doc = await haalDocument(db, documentId);
+  const doc = await haalDocument(db, documentId, actor.projectId);
   const bestaand = await db
     .select()
     .from(rapportSnapshots)
