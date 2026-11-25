@@ -4,7 +4,7 @@ import { maakTestDb } from "@/db/test-db";
 import type { Db } from "@/db/client";
 import { documenten, documentObjecten, registraties } from "@/db/schema";
 import { maakRegistratie, werkBij, haalRegistratie } from "@/domain/registraties";
-import { zetIssueStatus, tekstcorrectie, biedAan, keurGoed, markeerVerwerkt } from "@/domain/workflow";
+import { zetIssueStatus, tekstcorrectie, biedAan, markeerVerwerkt } from "@/domain/workflow";
 import { maakRaakvlak, kantAfgestemd, kantVerwerkt } from "@/domain/raakvlakken";
 import { voegVoortgangToe } from "@/domain/voortgang";
 import { mogelijkeOvergangen, voerOvergangUit } from "@/domain/overgangen";

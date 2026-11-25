@@ -34,7 +34,7 @@ export function ImportScherm(p: {
     <div className="space-y-5">
       {p.ol ? (
         <section className="kaart grid gap-3 p-5">
-          <h2 className="font-semibold">Objectstructuur importeren</h2>
+          <h2 className="font-semibold">Objectstructuur (OTL)</h2>
           <div className="grid gap-3 sm:grid-cols-[10rem_1fr]">
             <label className="text-sm"><span className="label">Fase</span>
               <select className="invoer" value={fase} onChange={(e) => setFase(e.target.value)}>{p.fasen.map((f) => <option key={f.id} value={f.id}>{f.code}</option>)}</select>

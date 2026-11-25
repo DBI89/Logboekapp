@@ -8,6 +8,8 @@ import { huidigeActor } from "@/lib/sessie";
 import { plat } from "@/lib/objectenlijst";
 import { leesCsv } from "@/seed/demo";
 import { ImportScherm } from "@/components/ImportScherm";
+import { DocumentImport } from "@/components/DocumentImport";
+import { DOCUMENTEN_CSV } from "@/seed/data/documenten";
 
 export default async function Import({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
@@ -18,8 +20,8 @@ export default async function Import({ params }: { params: Promise<{ projectId: 
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-2xl font-semibold">Import</h1>
-        <p className="mt-1 text-sm text-grijs">Per fase een nieuwe, diepere export uit de eigen OTL-structuur. De import matcht op objectcode.</p>
+        <h1 className="text-2xl font-semibold">Structuur import</h1>
+        <p className="mt-1 text-sm text-grijs">De objectstructuur (OTL, per fase dieper) en de documentenlijst. Beide imports matchen op code of nummer.</p>
       </header>
       <ImportScherm
         projectId={projectId}
@@ -32,6 +34,7 @@ export default async function Import({ params }: { params: Promise<{ projectId: 
         dieper={await dieperVoorstellen(db, projectId)}
         objecten={plat(await objectBoom(db, projectId))}
       />
+      {(await isOntwerpleider(db, actor)) && <DocumentImport projectId={projectId} voorbeeld={DOCUMENTEN_CSV} />}
     </div>
   );
 }

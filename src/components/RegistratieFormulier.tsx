@@ -45,7 +45,8 @@ function Weergave({ veld, waarde }: { veld: Veld; waarde: unknown }) {
 
 export function RegistratieFormulier(p: Props) {
   const { bezig, fout, voerUit } = useActie();
-  const [bewerken, setBewerken] = useState(false);
+  const [bewerken, setBewerken] = useState(p.bewerkbaar);
+  const [opgeslagen, setOpgeslagen] = useState(false);
   const [titel, setTitel] = useState(p.titel);
   const [omschrijving, setOmschrijving] = useState(p.omschrijving);
   const [details, setDetails] = useState<Record<string, unknown>>(p.details);
@@ -56,17 +57,22 @@ export function RegistratieFormulier(p: Props) {
     return (
       <section className="kaart p-5">
         <div className="flex items-start justify-between gap-3">
-          <p className="whitespace-pre-wrap text-sm">{p.omschrijving || <span className="text-grijs">Geen omschrijving.</span>}</p>
-          {(p.bewerkbaar || p.correctie) && (
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-navy">Gegevens</h2>
+          {p.correctie && (
             <button className="knop-licht shrink-0" onClick={() => setBewerken(true)}>
-              {p.bewerkbaar ? "Bewerken" : "Tekstcorrectie"}
+              Tekstcorrectie
             </button>
           )}
         </div>
-        <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-[14rem_1fr]">
+        <p className="mt-1 text-xs text-grijs">De tekst ligt vast. {p.correctie ? "Als ontwerpleider kun je taal- en typfouten corrigeren." : ""}</p>
+        <dl className="mt-4 divide-y divide-lijn text-sm">
+          <div className="grid gap-1 py-3 sm:grid-cols-[14rem_1fr] sm:gap-4">
+            <dt className="text-xs font-semibold uppercase tracking-wide text-navy">Omschrijving</dt>
+            <dd className="whitespace-pre-wrap">{p.omschrijving || <span className="text-grijs">–</span>}</dd>
+          </div>
           {velden.map((v) => (
-            <div key={v.sleutel} className="contents">
-              <dt className="font-medium text-grijs">{v.label.replace(" *", "")}</dt>
+            <div key={v.sleutel} className="grid gap-1 py-3 sm:grid-cols-[14rem_1fr] sm:gap-4">
+              <dt className="text-xs font-semibold uppercase tracking-wide text-navy">{v.label.replace(" *", "")}</dt>
               <dd><Weergave veld={v} waarde={p.details[v.sleutel]} /></dd>
             </div>
           ))}
@@ -76,13 +82,21 @@ export function RegistratieFormulier(p: Props) {
 
   return (
     <form
-      className="kaart grid gap-3 p-5"
+      className="kaart grid gap-5 p-5"
       onSubmit={(e) => {
         e.preventDefault();
         const { instemming: _i, ...zonder } = details;
-        voerUit(() => slaRegistratieOp(p.projectId, p.id, { titel, omschrijving, details: zonder }, !p.bewerkbaar), () => setBewerken(false));
+        setOpgeslagen(false);
+        voerUit(() => slaRegistratieOp(p.projectId, p.id, { titel, omschrijving, details: zonder }, !p.bewerkbaar), () => {
+          if (p.bewerkbaar) setOpgeslagen(true);
+          else setBewerken(false);
+        });
       }}
     >
+      <div>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-navy">{p.bewerkbaar ? "Gegevens invullen" : "Tekstcorrectie"}</h2>
+        {p.bewerkbaar && <p className="mt-1 text-xs text-grijs">Velden met * zijn nodig voordat de registratie verder kan. De tekst ligt vast zodra de behandeling begint.</p>}
+      </div>
       {!p.bewerkbaar && <p className="rounded-md bg-amber-50 p-2 text-sm text-oranje">Tekstcorrectie: alleen bedoeld voor taal- en typfouten. De correctie wordt in de historie vastgelegd.</p>}
       <div>
         <label className="label" htmlFor="r-titel">Titel</label>
@@ -158,9 +172,10 @@ export function RegistratieFormulier(p: Props) {
         );
       })}
       <Foutmelding fout={fout} />
-      <div className="flex gap-2">
+      <div className="flex flex-wrap items-center gap-2 border-t border-lijn pt-4">
         <button className="knop" disabled={bezig}>Opslaan</button>
-        <button type="button" className="knop-licht" onClick={() => setBewerken(false)}>Annuleren</button>
+        {!p.bewerkbaar && <button type="button" className="knop-licht" onClick={() => setBewerken(false)}>Annuleren</button>}
+        {opgeslagen && !bezig && <span className="text-sm text-emerald-800" role="status">Opgeslagen.</span>}
       </div>
     </form>
   );

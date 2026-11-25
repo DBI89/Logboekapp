@@ -7,6 +7,7 @@ import { isOntwerpleider } from "@/domain/rechten";
 import { TYPE_MEERVOUD } from "@/domain/labels";
 import { huidigeActor, projectLeden } from "@/lib/sessie";
 import { FaseStart, Delegatie } from "@/components/FaseStart";
+import { soortVanType } from "@/lib/soorten";
 import type { RegistratieType } from "@/domain/types";
 
 const TYPEN: RegistratieType[] = ["afwijking", "wijziging", "ontwerpkeuze", "raakvlak", "issue"];
@@ -40,7 +41,7 @@ export default async function Fasen({ params }: { params: Promise<{ projectId: s
                   const n = o.registraties.filter((r) => r.type === t);
                   return (
                     <tr key={t} className="border-b border-lijn last:border-0">
-                      <td className="py-1"><Link className="hover:text-blauw" href={`/project/${projectId}/registraties?type=${t}&fase=${f.id}`}>{TYPE_MEERVOUD[t]}</Link></td>
+                      <td className="py-1"><Link className="hover:text-blauw" href={`/project/${projectId}/overzicht/${soortVanType(t).slug}?fase=${f.id}`}>{TYPE_MEERVOUD[t]}</Link></td>
                       <td className="py-1 text-right font-semibold">{n.length}</td>
                     </tr>
                   );

@@ -14,7 +14,12 @@ import { zetEigenaar } from "@/domain/objecten";
 import { sluitUit, neemOp, legRevisieVast } from "@/domain/rapport";
 import type { BronSoort } from "@/db/schema";
 import type { Instemming } from "@/domain/velden";
-import type { RegistratieType } from "@/domain/types";
+import { Fout, type RegistratieType } from "@/domain/types";
+import { voerOvergangUit, type OvergangActie, type OvergangInvoer } from "@/domain/overgangen";
+import { voegVoortgangToe } from "@/domain/voortgang";
+import { parseDocumentCsv, voerDocumentImportUit, zetDocumentObjecten } from "@/domain/documenten";
+import { documenten } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 async function metActor<T>(projectId: string, fn: (db: Awaited<ReturnType<typeof getDb>>, actor: Awaited<ReturnType<typeof huidigeActor>>) => Promise<T>) {
   const res = await actie(async () => fn(await getDb(), await huidigeActor(projectId)));
@@ -100,7 +105,7 @@ export async function controleerImport(projectId: string, tekst: string) {
 export async function voerImportUitActie(projectId: string, faseId: string, bestandsnaam: string, tekst: string) {
   return metActor(projectId, async (db, a) => {
     const { regels, fouten } = parseObjectCsv(tekst);
-    if (fouten.length) throw new (await import("@/domain/types")).Fout(fouten.join("; "));
+    if (fouten.length) throw new Fout(fouten.join("; "));
     return voerImportUit(db, a, faseId, bestandsnaam, regels);
   });
 }
@@ -123,4 +128,29 @@ export async function neemOpActie(projectId: string, documentId: string, registr
 }
 export async function legRevisieVastActie(projectId: string, documentId: string, revisie: string) {
   return metActor(projectId, (db, a) => legRevisieVast(db, a, documentId, revisie));
+}
+
+// Ronde 1: statusmenu, voortgang, documentenlijst
+export async function wijzigStatus(projectId: string, id: string, actie: OvergangActie, invoer: OvergangInvoer) {
+  return metActor(projectId, (db, a) => voerOvergangUit(db, a, id, actie, invoer));
+}
+export async function voegVoortgangToeActie(projectId: string, id: string, tekst: string) {
+  return metActor(projectId, (db, a) => voegVoortgangToe(db, a, id, tekst));
+}
+export async function controleerDocumentImport(projectId: string, tekst: string) {
+  return metActor(projectId, async (db) => {
+    const { regels, fouten } = parseDocumentCsv(tekst);
+    const bestaand = new Set((await db.select({ nummer: documenten.nummer }).from(documenten).where(eq(documenten.projectId, projectId))).map((d) => d.nummer));
+    return { fouten, regels, nieuw: regels.filter((r) => !bestaand.has(r.nummer)).map((r) => r.nummer), bijgewerkt: regels.filter((r) => bestaand.has(r.nummer)).map((r) => r.nummer) };
+  });
+}
+export async function voerDocumentImportUitActie(projectId: string, tekst: string) {
+  return metActor(projectId, async (db, a) => {
+    const { regels, fouten } = parseDocumentCsv(tekst);
+    if (fouten.length) throw new Fout(fouten.join("; "));
+    return voerDocumentImportUit(db, a, regels);
+  });
+}
+export async function zetDocumentObjectenActie(projectId: string, documentId: string, objectIds: string[]) {
+  return metActor(projectId, (db, a) => zetDocumentObjecten(db, a, documentId, objectIds));
 }

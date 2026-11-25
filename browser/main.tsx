@@ -18,6 +18,7 @@ import Documenten from "@/app/(app)/project/[projectId]/documenten/page";
 import DocumentDetail from "@/app/(app)/project/[projectId]/documenten/[nummer]/page";
 import Fasen from "@/app/(app)/project/[projectId]/fasen/page";
 import Import from "@/app/(app)/project/[projectId]/import/page";
+import Overzicht from "@/app/(app)/project/[projectId]/overzicht/[soort]/page";
 import { GET as exportRoute } from "@/app/(app)/project/[projectId]/documenten/[nummer]/export/route";
 
 type Pagina = (p: { params: Promise<Record<string, string>>; searchParams: Promise<Record<string, string>> }) => Promise<ReactNode> | ReactNode;
@@ -33,6 +34,7 @@ const ROUTES: [RegExp, string[], Pagina][] = [
   [/^\/project\/([^/]+)\/documenten\/([^/]+)$/, ["projectId", "nummer"], DocumentDetail as unknown as Pagina],
   [/^\/project\/([^/]+)\/fasen$/, ["projectId"], Fasen as unknown as Pagina],
   [/^\/project\/([^/]+)\/import$/, ["projectId"], Import as unknown as Pagina],
+  [/^\/project\/([^/]+)\/overzicht\/([^/]+)$/, ["projectId", "soort"], Overzicht as unknown as Pagina],
   [/^\/project\/([^/]+)$/, ["projectId"], Project as unknown as Pagina],
 ];
 

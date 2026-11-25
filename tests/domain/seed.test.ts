@@ -36,3 +36,15 @@ describe("seedDemo", () => {
     await expect(zetEigenaar(db, { projectId, gebruikerId: g.constructeur }, tn.id, g.constructeur)).rejects.toThrow("Alleen de ontwerpleider");
   });
 });
+
+describe("voorbeeld documentenlijst", () => {
+  it("is foutloos te importeren in het demoproject", async () => {
+    const { parseDocumentCsv, voerDocumentImportUit } = await import("@/domain/documenten");
+    const { DOCUMENTEN_CSV } = await import("@/seed/data/documenten");
+    const db = await maakTestDb();
+    const { projectId, gebruikers: g } = await seedDemo(db);
+    const { regels, fouten } = parseDocumentCsv(DOCUMENTEN_CSV);
+    expect(fouten).toEqual([]);
+    expect(await voerDocumentImportUit(db, { projectId, gebruikerId: g.ol }, regels)).toEqual({ nieuw: 1, bijgewerkt: 3 });
+  });
+});

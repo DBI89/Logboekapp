@@ -3,15 +3,17 @@ import { notFound } from "next/navigation";
 import { getDb } from "@/db/client";
 import { haalRegistratie, registratieIdVanNummer, zoekRegistraties } from "@/domain/registraties";
 import { objectBoom } from "@/domain/objecten";
-import { magGoedkeuren, isOntwerpleider, magBeoordelen } from "@/domain/rechten";
+import { isOntwerpleider } from "@/domain/rechten";
+import { mogelijkeOvergangen } from "@/domain/overgangen";
 import { BRON_LABEL, STATUS_LABEL, TYPE_LABEL } from "@/domain/labels";
-import { BEVROREN } from "@/domain/types";
 import { huidigeActor, projectLeden } from "@/lib/sessie";
 import { plat } from "@/lib/objectenlijst";
 import { StatusLabel } from "@/components/StatusLabel";
 import { RegistratieFormulier } from "@/components/RegistratieFormulier";
 import { KoppelingBewerken } from "@/components/KoppelingBewerken";
-import { RegistratieActies, type Toegestaan } from "@/components/RegistratieActies";
+import { StatusMenu } from "@/components/StatusMenu";
+import { soortVanType } from "@/lib/soorten";
+import { Voortgang } from "@/components/Voortgang";
 import { InstemmingFormulier } from "@/components/InstemmingFormulier";
 import { RaakvlakKanten } from "@/components/RaakvlakKanten";
 import type { Instemming } from "@/domain/velden";
@@ -28,26 +30,21 @@ export default async function RegistratieDetail({ params }: { params: Promise<{ 
   const ol = await isOntwerpleider(db, actor);
   const namen = new Map((await projectLeden(projectId)).map((l) => [l.id, l.naam]));
   const objecten = plat(await objectBoom(db, projectId));
-  const bevroren = (BEVROREN as readonly string[]).includes(r.status);
   const goedkeurType = ["afwijking", "wijziging", "ontwerpkeuze"].includes(r.type);
-  const betrokken = r.aangemaaktDoor === actor.gebruikerId || r.eigenaarId === actor.gebruikerId || (await magBeoordelen(db, actor));
   const lopendeVervanging = r.relaties.some((x) => x.soort === "vervangt" && x.richting === "in");
-
-  const mag: Toegestaan = {};
-  if (goedkeurType) {
-    mag.aanbieden = ["concept", "afgewezen"].includes(r.status) && betrokken;
-    mag.goedkeuren = r.status === "ter_goedkeuring" && (await magGoedkeuren(db, actor, r)).ok;
-    mag.verwerkt = r.status === "goedgekeurd";
-  }
-  mag.vervangen = ["goedgekeurd", "verwerkt", "vastgesteld"].includes(r.status) && !lopendeVervanging;
-  if (r.type === "issue")
-    mag.issue = r.status === "open" ? ["in_behandeling", "opgelost", "vervallen"] : r.status === "in_behandeling" ? ["opgelost", "vervallen", "heropenen"] : [];
+  // Invullen kan zolang de behandeling nog niet is begonnen (ronde 1, punt 4).
+  const bewerkbaar =
+    (goedkeurType && ["concept", "afgewezen"].includes(r.status)) ||
+    (r.type === "issue" && r.status === "open") ||
+    (r.type === "raakvlak" && r.status === "concept" && !r.kanten.some((k) => k.afgestemdOp));
+  const correctie = !bewerkbaar && ol && !["vervangen", "ter_goedkeuring", "afgewezen"].includes(r.status);
+  const overgangen = await mogelijkeOvergangen(db, actor, r.id);
   const registraties = (await zoekRegistraties(db, projectId)).map((x) => ({ id: x.id, nummer: x.nummer, titel: x.titel }));
   const details = r.details as Record<string, unknown>;
 
   return (
     <div className="space-y-5">
-      <nav className="text-sm text-grijs"><Link className="hover:text-blauw" href={`/project/${projectId}/registraties`}>Registraties</Link> / {r.nummer}</nav>
+      <nav className="text-sm text-grijs"><Link className="hover:text-blauw" href={`/project/${projectId}/overzicht/${soortVanType(r.type).slug}`}>{soortVanType(r.type).titel}</Link> / {r.nummer}</nav>
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm text-grijs">{TYPE_LABEL[r.type]} · fase {r.faseCode} · eigenaar {r.eigenaarId ? namen.get(r.eigenaarId) : "–"}</p>
@@ -66,16 +63,22 @@ export default async function RegistratieDetail({ params }: { params: Promise<{ 
       )}
       {lopendeVervanging && <p className="rounded-md bg-amber-50 p-3 text-sm text-oranje">Er loopt een vervanging voor deze registratie (zie relaties).</p>}
 
-      <RegistratieActies projectId={projectId} id={r.id} mag={mag} registraties={registraties} />
-      <RegistratieFormulier projectId={projectId} id={r.id} type={r.type} titel={r.titel} omschrijving={r.omschrijving} details={details} bewerkbaar={!bevroren && r.status !== "vervangen" && r.status !== "ter_goedkeuring"} correctie={bevroren && ol && r.status !== "vervangen"} />
+      <StatusMenu projectId={projectId} id={r.id} status={r.status} overgangen={overgangen} registraties={registraties} kanten={r.kanten.map((k) => ({ id: k.id, code: k.object.code }))} />
+      <RegistratieFormulier key={`${r.id}-${r.status}`} projectId={projectId} id={r.id} type={r.type} titel={r.titel} omschrijving={r.omschrijving} details={details} bewerkbaar={bewerkbaar} correctie={correctie} />
+      {r.type === "issue" && (
+        <Voortgang
+          projectId={projectId}
+          id={r.id}
+          open={["open", "in_behandeling"].includes(r.status)}
+          notities={r.voortgang.map((v) => ({ id: v.id, tekst: v.tekst, naam: v.naam, op: v.op.toISOString() }))}
+        />
+      )}
       {goedkeurType && <InstemmingFormulier projectId={projectId} id={r.id} waarde={details.instemming as Instemming | undefined} bewerkbaar={r.status !== "vervangen"} />}
 
       {r.type === "raakvlak" ? (
         <RaakvlakKanten
           projectId={projectId}
-          id={r.id}
           status={r.status}
-          eindoordeel={ol}
           kanten={r.kanten.map((k) => ({
             id: k.id,
             code: k.object.code,
@@ -92,7 +95,7 @@ export default async function RegistratieDetail({ params }: { params: Promise<{ 
         <KoppelingBewerken
           projectId={projectId}
           id={r.id}
-          bewerkbaar={!bevroren && r.status !== "vervangen" && r.status !== "ter_goedkeuring"}
+          bewerkbaar={bewerkbaar}
           objecten={objecten}
           huidig={r.koppelingen.map((k) => ({
             soort: k.soort,

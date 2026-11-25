@@ -36,12 +36,23 @@ async function open(): Promise<PGlite> {
 
 async function maak(): Promise<Db> {
   const client = await open();
-  const { rows } = await client.query<{ t: string | null }>("select to_regclass('public.projecten')::text as t");
   const d = drizzle(client, { schema }) as unknown as Db;
-  if (!rows[0]?.t) {
-    for (const sleutel of Object.keys(migraties).sort()) await client.exec(migraties[sleutel]);
-    await seedDemo(d);
+  const { rows } = await client.query<{ t: string | null }>("select to_regclass('public.projecten')::text as t");
+  const nieuw = !rows[0]?.t;
+  await client.exec("create table if not exists browser_migraties (naam text primary key)");
+  const gedaan = new Set((await client.query<{ naam: string }>("select naam from browser_migraties")).rows.map((r) => r.naam));
+  const namen = Object.keys(migraties).sort();
+  // Een database uit de eerste demoversie heeft de beginstructuur al, maar nog geen administratie van updates.
+  if (!nieuw && gedaan.size === 0) {
+    await client.query("insert into browser_migraties (naam) values ($1)", [namen[0]]);
+    gedaan.add(namen[0]);
   }
+  for (const naam of namen) {
+    if (gedaan.has(naam)) continue;
+    await client.exec(migraties[naam]);
+    await client.query("insert into browser_migraties (naam) values ($1)", [naam]);
+  }
+  if (nieuw) await seedDemo(d);
   return d;
 }
 

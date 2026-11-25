@@ -18,17 +18,30 @@ export function Zijbalk(p: Props) {
   const pad = usePathname();
   const [open, setOpen] = useState(false);
   const basis = `/project/${p.projectId}`;
-  const items = [
-    { href: `${basis}/mijn-werk`, tekst: "Mijn werk" },
-    { href: `${basis}/inbox`, tekst: "Inbox", teller: p.inboxAantal },
-    { href: `${basis}/registraties`, tekst: "Registraties" },
-    { href: `${basis}/objecten`, tekst: "Objecten" },
-    { href: `${basis}/documenten`, tekst: "Documenten" },
-    { href: `${basis}/fasen`, tekst: "Fasen" },
-    { href: `${basis}/import`, tekst: "Import" },
+  const groepen: { titel?: string; items: { href: string; tekst: string; teller?: number }[] }[] = [
+    { items: [{ href: `${basis}/mijn-werk`, tekst: "Mijn werk" }, { href: `${basis}/inbox`, tekst: "Inbox", teller: p.inboxAantal }] },
+    {
+      titel: "Registraties",
+      items: [
+        { href: `${basis}/overzicht/issues`, tekst: "Issues" },
+        { href: `${basis}/overzicht/afwijkingen`, tekst: "Afwijkingen" },
+        { href: `${basis}/overzicht/wijzigingen`, tekst: "Wijzigingen" },
+        { href: `${basis}/overzicht/ontwerpkeuzes`, tekst: "Ontwerpkeuzes" },
+        { href: `${basis}/overzicht/raakvlakken`, tekst: "Raakvlakafspraken" },
+      ],
+    },
+    {
+      titel: "Project",
+      items: [
+        { href: `${basis}/objecten`, tekst: "Objecten" },
+        { href: `${basis}/documenten`, tekst: "Documenten" },
+        { href: `${basis}/fasen`, tekst: "Fasen" },
+        { href: `${basis}/import`, tekst: "Structuur import" },
+      ],
+    },
   ];
   return (
-    <aside className="bg-gradient-to-b from-navy to-[#005a8f] text-white md:sticky md:top-0 md:flex md:h-screen md:w-64 md:shrink-0 md:flex-col">
+    <aside className="bg-gradient-to-b from-navy to-[#005a8f] text-white md:sticky md:top-0 md:flex md:h-screen md:w-64 md:overflow-y-auto md:shrink-0 md:flex-col">
       <div className="flex items-center justify-between gap-3 px-4 py-4 md:block md:px-5 md:py-6">
         <div>
           <div className="flex items-center gap-2">
@@ -50,24 +63,29 @@ export function Zijbalk(p: Props) {
         </button>
       </div>
       <nav id="hoofdmenu" className={`${open ? "block" : "hidden"} px-2 pb-3 md:block md:flex-1`}>
-        <ul className="space-y-0.5">
-          {items.map((i) => {
-            const actief = pad.startsWith(i.href);
-            return (
-              <li key={i.href}>
-                <Link
-                  href={i.href}
-                  onClick={() => setOpen(false)}
-                  className={`flex min-h-11 items-center justify-between rounded-md px-3 text-sm ${actief ? "bg-white/15 font-semibold" : "text-white/85 hover:bg-white/10"}`}
-                  aria-current={actief ? "page" : undefined}
-                >
-                  {i.tekst}
-                  {i.teller ? <span className="rounded-full bg-mint px-2 text-xs font-semibold text-navy">{i.teller}</span> : null}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        {groepen.map((g, gi) => (
+          <div key={gi} className={gi ? "mt-4" : ""}>
+            {g.titel && <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-white/60">{g.titel}</p>}
+            <ul className="space-y-0.5">
+              {g.items.map((i) => {
+                const actief = pad.startsWith(i.href);
+                return (
+                  <li key={i.href}>
+                    <Link
+                      href={i.href}
+                      onClick={() => setOpen(false)}
+                      className={`flex min-h-10 items-center justify-between rounded-md px-3 text-sm ${actief ? "bg-white/15 font-semibold" : "text-white/85 hover:bg-white/10"}`}
+                      aria-current={actief ? "page" : undefined}
+                    >
+                      {i.tekst}
+                      {i.teller ? <span className="rounded-full bg-mint px-2 text-xs font-semibold text-navy">{i.teller}</span> : null}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
       </nav>
       <div className={`${open ? "block" : "hidden"} border-t border-white/15 px-4 py-4 md:block`}>
         <GebruikerWissel leden={p.leden} huidig={p.huidig} />

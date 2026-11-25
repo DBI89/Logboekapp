@@ -112,6 +112,6 @@ export async function signalen(db: Db, projectId: string): Promise<Signaal[]> {
     uit.push({ soort: "te_herkoppelen", tekst: `${meer(herkoppel.length, "koppeling moet", "koppelingen moeten")} opnieuw worden gekoppeld`, link: "import" });
   const eind = alle.filter((r) => r.type === "raakvlak" && r.status === "verwerkt");
   if (eind.length)
-    uit.push({ soort: "eindoordeel_nodig", tekst: `${meer(eind.length, "raakvlakafspraak wacht", "raakvlakafspraken wachten")} op het eindoordeel`, link: "registraties?type=raakvlak&status=verwerkt" });
+    uit.push({ soort: "eindoordeel_nodig", tekst: `${meer(eind.length, "raakvlakafspraak wacht", "raakvlakafspraken wachten")} op het eindoordeel`, link: "overzicht/raakvlakken?status=verwerkt" });
   return uit;
 }

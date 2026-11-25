@@ -6,6 +6,11 @@ import { documenten, documentObjecten, fasen, objecten } from "@/db/schema";
 import { KOLOMMEN, TYPE_VOLGORDE, rapportInhoud, verschilMetVorige } from "@/domain/rapport";
 import { TYPE_MEERVOUD } from "@/domain/labels";
 import { Uitsluiten, WeerOpnemen, RevisieVastleggen } from "@/components/DocumentActies";
+import { DocumentObjecten } from "@/components/DocumentObjecten";
+import { objectBoom } from "@/domain/objecten";
+import { isOntwerpleider } from "@/domain/rechten";
+import { huidigeActor } from "@/lib/sessie";
+import { plat } from "@/lib/objectenlijst";
 
 const volgendeRevisie = (r: string) => (/^[A-Y]$/.test(r) ? String.fromCharCode(r.charCodeAt(0) + 1) : "A");
 
@@ -15,7 +20,7 @@ export default async function DocumentDetail({ params }: { params: Promise<{ pro
   const [doc] = await db.select().from(documenten).where(and(eq(documenten.projectId, projectId), eq(documenten.nummer, decodeURIComponent(nummer))));
   if (!doc) notFound();
   const [fase] = await db.select().from(fasen).where(eq(fasen.id, doc.faseId));
-  const objs = await db.select({ code: objecten.code, naam: objecten.naam }).from(documentObjecten).innerJoin(objecten, eq(objecten.id, documentObjecten.objectId)).where(eq(documentObjecten.documentId, doc.id));
+  const objs = await db.select({ id: objecten.id, code: objecten.code, naam: objecten.naam }).from(documentObjecten).innerJoin(objecten, eq(objecten.id, documentObjecten.objectId)).where(eq(documentObjecten.documentId, doc.id));
   const inhoud = await rapportInhoud(db, doc.id);
   const verschil = await verschilMetVorige(db, doc.id);
   const exportUrl = (f: string) => `/project/${projectId}/documenten/${doc.nummer}/export?formaat=${f}`;
@@ -27,6 +32,9 @@ export default async function DocumentDetail({ params }: { params: Promise<{ pro
         <div>
           <p className="text-sm text-grijs">Fase {fase.code} · rev. {doc.revisie} · objecten {objs.map((o) => o.code).join(", ")} (inclusief onderliggend)</p>
           <h1 className="mt-1 text-2xl font-semibold"><span className="font-mono text-lg text-grijs">{doc.nummer}</span> {doc.titel}</h1>
+          {(await isOntwerpleider(db, await huidigeActor(projectId))) && (
+            <div className="mt-3"><DocumentObjecten projectId={projectId} documentId={doc.id} huidig={objs.map((o) => o.id)} objecten={plat(await objectBoom(db, projectId))} /></div>
+          )}
         </div>
         <div className="flex gap-2">
           <a className="knop" href={exportUrl("docx")}>Download Word</a>
