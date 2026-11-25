@@ -304,11 +304,16 @@ export async function dieperVoorstellen(
   for (const { k, r } of rijen) {
     if (!k.objectId || k.teHerkoppelen || !perId.has(k.objectId)) continue;
     const tekst = new Set(woorden(`${r.titel} ${r.omschrijving}`));
-    for (const id of nakomelingenUit(alle, k.objectId)) {
+    const treffers = nakomelingenUit(alle, k.objectId).filter((id) => {
       const o = perId.get(id)!;
       const sleutels = woorden(`${o.objecttype} ${o.toepassing ?? ""}`);
-      if (sleutels.some((w) => [...tekst].some((t) => t.startsWith(w.slice(0, 6)) || w.startsWith(t))))
-        uit.push({
+      return sleutels.some((w) => [...tekst].some((t) => t.startsWith(w.slice(0, 6)) || w.startsWith(t)));
+    });
+    // Alleen eenduidige voorstellen: past de tekst op meerdere onderdelen, dan gaat hij over het geheel.
+    if (treffers.length !== 1) continue;
+    for (const id of treffers) {
+      const o = perId.get(id)!;
+      uit.push({
           koppelingId: k.id,
           registratieNummer: r.nummer,
           huidigCode: perId.get(k.objectId)!.code,

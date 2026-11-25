@@ -154,6 +154,15 @@ describe("import uitvoeren", () => {
   });
 });
 
+describe("dieperVoorstellen bij twijfel", () => {
+  it("stelt niets voor als de tekst op meerdere onderliggende objecten past", async () => {
+    await importeer("so.csv", "SO");
+    await registratieOp("VN", "Liggers voor alle overspanningen");
+    await importeer("do.csv", "DO");
+    expect(await dieperVoorstellen(db, p.projectId)).toEqual([]);
+  });
+});
+
 describe("boom", () => {
   it("eigenaar erft van ouder, voorouders en nakomelingen", async () => {
     await importeer("do.csv", "DO");
