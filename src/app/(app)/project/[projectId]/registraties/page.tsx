@@ -64,7 +64,7 @@ export default async function Registraties({ params, searchParams }: { params: P
           <tbody>
             {rijen.map((r) => (
               <tr key={r.id}>
-                <td className="font-mono text-xs"><Link className="text-blauw hover:underline" href={`/project/${projectId}/registraties/${r.nummer}`}>{r.nummer}</Link></td>
+                <td className="whitespace-nowrap font-mono text-xs"><Link className="text-blauw hover:underline" href={`/project/${projectId}/registraties/${r.nummer}`}>{r.nummer}</Link></td>
                 <td><Link className="hover:text-blauw" href={`/project/${projectId}/registraties/${r.nummer}`}>{r.titel}</Link></td>
                 <td>{TYPE_LABEL[r.type]}</td>
                 <td className="font-mono text-xs">{objectTekst(r.id)}</td>

@@ -61,7 +61,7 @@ export default async function ObjectDetail({ params, searchParams }: { params: P
           <tbody>
             {rijen.map((r) => (
               <tr key={r.id}>
-                <td className="font-mono text-xs"><Link className="text-blauw hover:underline" href={`/project/${projectId}/registraties/${r.nummer}`}>{r.nummer}</Link></td>
+                <td className="whitespace-nowrap font-mono text-xs"><Link className="text-blauw hover:underline" href={`/project/${projectId}/registraties/${r.nummer}`}>{r.nummer}</Link></td>
                 <td>{r.titel}{r.viaType && <span className="ml-2 rounded bg-mint/20 px-1.5 text-[10px] text-emerald-900">via type</span>}</td>
                 <td>{TYPE_LABEL[r.type]}</td>
                 <td><StatusLabel status={r.status} /></td>
