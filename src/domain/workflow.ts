@@ -6,6 +6,7 @@ import { haalRij, werkBij, type Patch } from "./registraties";
 import { heeftDelegatie, isOntwerpleider, magBeoordelen, magGoedkeuren, rolVan } from "./rechten";
 import { ontbrekendeVelden, valideerDetails, VELD_LABEL, type Instemming } from "./velden";
 import { Fout, type Actor } from "./types";
+import { rondVervangingAf } from "./vervanging";
 
 type Rij = Awaited<ReturnType<typeof haalRij>>;
 
@@ -49,9 +50,6 @@ export async function biedAan(db: Db, actor: Actor, id: string): Promise<void> {
   await zetStatus(db, actor, r, "ter_goedkeuring", "aangeboden", { afwijsToelichting: null });
 }
 
-/** Wordt na goedkeuring of vaststelling aangeroepen (bijv. om een vervangen registratie af te ronden). */
-export const naVastleggen: ((db: Db, actor: Actor, registratieId: string) => Promise<void>)[] = [];
-
 export async function keurGoed(db: Db, actor: Actor, id: string): Promise<void> {
   const r = await laad(db, actor, id);
   alleenGoedkeurTypen(r);
@@ -68,7 +66,7 @@ export async function keurGoed(db: Db, actor: Actor, id: string): Promise<void> 
     { goedgekeurdDoor: actor.gebruikerId, goedgekeurdOnderDelegatie: onderDelegatie, goedgekeurdOp: new Date() },
     { onderDelegatie },
   );
-  for (const hook of naVastleggen) await hook(db, actor, id);
+  await rondVervangingAf(db, actor, id);
 }
 
 export async function wijsAf(db: Db, actor: Actor, id: string, toelichting: string): Promise<void> {

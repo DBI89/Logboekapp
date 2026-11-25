@@ -5,7 +5,7 @@ import { logHistorie } from "./historie";
 import { effectieveEigenaarUit, laadObjecten, nakomelingenUit } from "./objecten";
 import { haalRij, maakRegistratie } from "./registraties";
 import { isOntwerpleider } from "./rechten";
-import { naVastleggen } from "./workflow";
+import { rondVervangingAf } from "./vervanging";
 import { Fout, type Actor } from "./types";
 
 export type RaakvlakInvoer = {
@@ -118,7 +118,7 @@ export async function eindoordeel(
       .set({ goedgekeurdDoor: actor.gebruikerId, goedgekeurdOp: new Date() })
       .where(eq(registraties.id, id));
     await zetStatus(db, actor, r, "vastgesteld", "eindoordeel_akkoord", { opmerking: opts.opmerking });
-    for (const hook of naVastleggen) await hook(db, actor, id);
+    await rondVervangingAf(db, actor, id);
     return;
   }
   if (!opts.opmerking?.trim()) throw new Fout("Opmerking is verplicht bij niet akkoord");
