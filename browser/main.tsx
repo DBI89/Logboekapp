@@ -23,17 +23,17 @@ import { GET as exportRoute } from "@/app/(app)/project/[projectId]/documenten/[
 type Pagina = (p: { params: Promise<Record<string, string>>; searchParams: Promise<Record<string, string>> }) => Promise<ReactNode> | ReactNode;
 
 const ROUTES: [RegExp, string[], Pagina][] = [
-  [/^\/project\/([^/]+)\/mijn-werk$/, ["projectId"], MijnWerk as Pagina],
-  [/^\/project\/([^/]+)\/inbox$/, ["projectId"], Inbox as Pagina],
-  [/^\/project\/([^/]+)\/registraties$/, ["projectId"], Registraties as Pagina],
-  [/^\/project\/([^/]+)\/registraties\/([^/]+)$/, ["projectId", "nummer"], RegistratieDetail as Pagina],
-  [/^\/project\/([^/]+)\/objecten$/, ["projectId"], Objecten as Pagina],
-  [/^\/project\/([^/]+)\/objecten\/([^/]+)$/, ["projectId", "code"], ObjectDetail as Pagina],
-  [/^\/project\/([^/]+)\/documenten$/, ["projectId"], Documenten as Pagina],
-  [/^\/project\/([^/]+)\/documenten\/([^/]+)$/, ["projectId", "nummer"], DocumentDetail as Pagina],
-  [/^\/project\/([^/]+)\/fasen$/, ["projectId"], Fasen as Pagina],
-  [/^\/project\/([^/]+)\/import$/, ["projectId"], Import as Pagina],
-  [/^\/project\/([^/]+)$/, ["projectId"], Project as Pagina],
+  [/^\/project\/([^/]+)\/mijn-werk$/, ["projectId"], MijnWerk as unknown as Pagina],
+  [/^\/project\/([^/]+)\/inbox$/, ["projectId"], Inbox as unknown as Pagina],
+  [/^\/project\/([^/]+)\/registraties$/, ["projectId"], Registraties as unknown as Pagina],
+  [/^\/project\/([^/]+)\/registraties\/([^/]+)$/, ["projectId", "nummer"], RegistratieDetail as unknown as Pagina],
+  [/^\/project\/([^/]+)\/objecten$/, ["projectId"], Objecten as unknown as Pagina],
+  [/^\/project\/([^/]+)\/objecten\/([^/]+)$/, ["projectId", "code"], ObjectDetail as unknown as Pagina],
+  [/^\/project\/([^/]+)\/documenten$/, ["projectId"], Documenten as unknown as Pagina],
+  [/^\/project\/([^/]+)\/documenten\/([^/]+)$/, ["projectId", "nummer"], DocumentDetail as unknown as Pagina],
+  [/^\/project\/([^/]+)\/fasen$/, ["projectId"], Fasen as unknown as Pagina],
+  [/^\/project\/([^/]+)\/import$/, ["projectId"], Import as unknown as Pagina],
+  [/^\/project\/([^/]+)$/, ["projectId"], Project as unknown as Pagina],
 ];
 
 async function bouw(pad: string): Promise<ReactNode> {
@@ -60,8 +60,8 @@ async function exporteer(pad: string, melding: (t: string) => void) {
   if (!res.ok) return melding("Export mislukt.");
   const naam = /filename="([^"]+)"/.exec(res.headers.get("Content-Disposition") ?? "")?.[1] ?? "export.docx";
   const blob = await res.blob();
-  const use = claudeUse();
-  const downloads = use ? ((await use("downloads").catch(() => null)) as Downloads | null) : null;
+  const capabiliteit = claudeUse();
+  const downloads = capabiliteit ? ((await capabiliteit("downloads").catch(() => null)) as Downloads | null) : null;
   if (downloads) {
     try {
       await downloads.save({ filename: naam, data: blob });
@@ -147,7 +147,7 @@ function App() {
       .catch((e) => {
         if (!actueel) return;
         if (e instanceof Omleiding) return router.ga(e.naar);
-        if (e instanceof NietGevonden) return setInhoud(<p className="p-8">Deze pagina bestaat niet. <a href="/">Naar het begin</a></p>);
+        if (e instanceof NietGevonden) return setInhoud(<p className="p-8">Deze pagina bestaat niet. <button className="text-blauw underline" onClick={() => router.ga("/")}>Naar het begin</button></p>);
         console.error(e);
         setInhoud(<p className="p-8 text-rood">Er ging iets mis bij het laden van deze pagina.</p>);
       })
