@@ -17,6 +17,7 @@ import type { Instemming } from "@/domain/velden";
 import { Fout, type RegistratieType } from "@/domain/types";
 import { voerOvergangUit, type OvergangActie, type OvergangInvoer } from "@/domain/overgangen";
 import { voegVoortgangToe } from "@/domain/voortgang";
+import { maakDirect } from "@/domain/direct";
 import { parseDocumentCsv, voerDocumentImportUit, zetDocumentObjecten } from "@/domain/documenten";
 import { documenten } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -153,4 +154,9 @@ export async function voerDocumentImportUitActie(projectId: string, tekst: strin
 }
 export async function zetDocumentObjectenActie(projectId: string, documentId: string, objectIds: string[]) {
   return metActor(projectId, (db, a) => zetDocumentObjecten(db, a, documentId, objectIds));
+}
+
+// Ronde 2: direct aanmaken vanuit een overzicht (OL/OC)
+export async function maakDirectActie(projectId: string, input: { type: RegistratieType; titel: string; objectIds: string[] }) {
+  return metActor(projectId, (db, a) => maakDirect(db, a, input));
 }

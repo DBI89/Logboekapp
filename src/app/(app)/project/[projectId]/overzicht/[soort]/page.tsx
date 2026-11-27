@@ -1,61 +1,58 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
 import { getDb } from "@/db/client";
-import { fasen } from "@/db/schema";
 import { overzicht, type OverzichtRij } from "@/domain/overzicht";
+import { objectBoom } from "@/domain/objecten";
+import { magBeoordelen } from "@/domain/rechten";
 import { STATUS_LABEL } from "@/domain/labels";
-import { projectLeden } from "@/lib/sessie";
+import { huidigeActor, projectLeden } from "@/lib/sessie";
+import { plat } from "@/lib/objectenlijst";
 import { SOORTEN } from "@/lib/soorten";
-import { StatusLabel } from "@/components/StatusLabel";
+import { RegistratieTabel, type TabelKolom } from "@/components/RegistratieTabel";
+import { NieuweRegistratie } from "@/components/NieuweRegistratie";
+import { NaarPaneel } from "@/components/NaarPaneel";
+import { registratieWeergave } from "@/components/RegistratieWeergave";
 import type { RegistratieType } from "@/domain/types";
 
 const d = (r: OverzichtRij, k: string) => (r.details[k] as string | undefined) ?? "";
 const instemming = (r: OverzichtRij) => {
   const i = r.details.instemming as { nodig?: boolean; status?: string } | undefined;
-  return !i?.nodig ? "Niet nodig" : STATUS_LABEL[i.status ?? ""] ?? i.status ?? "Nog aan te vragen";
+  return !i?.nodig ? "Niet nodig" : ({ aangevraagd: "Aangevraagd", verleend: "Verleend", geweigerd: "Geweigerd" } as Record<string, string>)[i.status ?? ""] ?? "Nog aan te vragen";
 };
-const PRIO: Record<string, string> = { hoog: "Hoog", normaal: "Normaal", laag: "Laag" };
+const datum = (iso: string) => (iso ? new Date(iso).toLocaleDateString("nl-NL") : "");
 
-type Kolom = { kop: string; cel: (r: OverzichtRij) => React.ReactNode; breed?: boolean };
-const KOLOMMEN: Record<RegistratieType, Kolom[]> = {
+type Extra = { kolom: TabelKolom; waarde: (r: OverzichtRij) => string; sorteer?: (r: OverzichtRij) => string };
+const objectenKolom: Extra = { kolom: { sleutel: "objecten", kop: "Objecten", soort: "tekst", mono: true }, waarde: (r) => r.objecten };
+const EXTRA: Record<RegistratieType, Extra[]> = {
   issue: [
-    { kop: "Objecten", cel: (r) => <span className="font-mono text-xs">{r.objecten}</span> },
-    { kop: "Prioriteit", cel: (r) => PRIO[d(r, "prioriteit")] ?? "–" },
-    { kop: "Streefdatum", cel: (r) => (d(r, "streefdatum") ? new Date(d(r, "streefdatum")).toLocaleDateString("nl-NL") : "–") },
+    objectenKolom,
+    { kolom: { sleutel: "prioriteit", kop: "Prioriteit", soort: "keuze" }, waarde: (r) => ({ hoog: "Hoog", normaal: "Normaal", laag: "Laag" })[d(r, "prioriteit")] ?? "", sorteer: (r) => ({ hoog: "1", normaal: "2", laag: "3" })[d(r, "prioriteit")] ?? "" },
+    { kolom: { sleutel: "streefdatum", kop: "Streefdatum", soort: "tekst" }, waarde: (r) => datum(d(r, "streefdatum")), sorteer: (r) => d(r, "streefdatum") },
     {
-      kop: "Laatste voortgang",
-      breed: true,
-      cel: (r) =>
-        r.laatsteVoortgang ? (
-          <span>
-            <span className="text-xs text-grijs">{r.laatsteVoortgang.op.toLocaleDateString("nl-NL")} </span>
-            <span className="line-clamp-2">{r.laatsteVoortgang.tekst}</span>
-          </span>
-        ) : (
-          <span className="text-grijs">–</span>
-        ),
+      kolom: { sleutel: "voortgang", kop: "Laatste voortgang", soort: "tekst", breed: true },
+      waarde: (r) => (r.laatsteVoortgang ? `${r.laatsteVoortgang.op.toLocaleDateString("nl-NL")}: ${r.laatsteVoortgang.tekst}` : ""),
+      sorteer: (r) => r.laatsteVoortgang?.op.toISOString() ?? "",
     },
   ],
-  afwijking: [
-    { kop: "Objecten", cel: (r) => <span className="font-mono text-xs">{r.objecten}</span> },
-    { kop: "Afwijking van", cel: (r) => d(r, "afwijkingVan") || "–", breed: true },
-    { kop: "Instemming OG", cel: instemming },
-  ],
+  afwijking: [objectenKolom, { kolom: { sleutel: "afwijkingVan", kop: "Afwijking van", soort: "tekst", breed: true }, waarde: (r) => d(r, "afwijkingVan") }, { kolom: { sleutel: "instemming", kop: "Instemming OG", soort: "keuze" }, waarde: instemming }],
   wijziging: [
-    { kop: "Objecten", cel: (r) => <span className="font-mono text-xs">{r.objecten}</span> },
-    { kop: "Aanleiding", cel: (r) => ({ opdrachtgever: "Opdrachtgever", intern: "Intern", extern: "Extern" })[d(r, "aanleiding")] ?? "–" },
-    { kop: "Instemming OG", cel: instemming },
+    objectenKolom,
+    { kolom: { sleutel: "aanleiding", kop: "Aanleiding", soort: "keuze" }, waarde: (r) => ({ opdrachtgever: "Opdrachtgever", intern: "Intern", extern: "Extern" })[d(r, "aanleiding")] ?? "" },
+    { kolom: { sleutel: "instemming", kop: "Instemming OG", soort: "keuze" }, waarde: instemming },
   ],
-  ontwerpkeuze: [
-    { kop: "Objecten", cel: (r) => <span className="font-mono text-xs">{r.objecten}</span> },
-    { kop: "Gekozen", cel: (r) => d(r, "gekozen") || "–", breed: true },
-  ],
+  ontwerpkeuze: [objectenKolom, { kolom: { sleutel: "gekozen", kop: "Gekozen", soort: "tekst", breed: true }, waarde: (r) => d(r, "gekozen") }],
   raakvlak: [
-    { kop: "Kanten", cel: (r) => <span className="font-mono text-xs">{r.kanten}</span> },
-    { kop: "Soort", cel: (r) => ({ fysiek: "Fysiek", functioneel: "Functioneel", ruimtelijk: "Ruimtelijk" })[d(r, "soort")] ?? "–" },
-    { kop: "Akkoord", cel: (r) => `${r.afgestemd}/${r.aantalKanten} afgestemd` },
+    { kolom: { sleutel: "kanten", kop: "Kanten", soort: "tekst", mono: true }, waarde: (r) => r.kanten },
+    { kolom: { sleutel: "soort", kop: "Soort", soort: "keuze" }, waarde: (r) => ({ fysiek: "Fysiek", functioneel: "Functioneel", ruimtelijk: "Ruimtelijk" })[d(r, "soort")] ?? "" },
+    { kolom: { sleutel: "akkoord", kop: "Akkoord", soort: "keuze" }, waarde: (r) => `${r.afgestemd}/${r.aantalKanten} afgestemd` },
   ],
+};
+const NIEUW: Record<RegistratieType, string> = {
+  issue: "Nieuw issue",
+  afwijking: "Nieuwe afwijking",
+  wijziging: "Nieuwe wijziging",
+  ontwerpkeuze: "Nieuwe ontwerpkeuze",
+  raakvlak: "Nieuwe raakvlakafspraak",
 };
 
 export default async function Overzicht({ params, searchParams }: { params: Promise<{ projectId: string; soort: string }>; searchParams: Promise<Record<string, string | undefined>> }) {
@@ -64,61 +61,58 @@ export default async function Overzicht({ params, searchParams }: { params: Prom
   const s = SOORTEN.find((x) => x.slug === soort);
   if (!s) notFound();
   const db = await getDb();
-  const projectFasen = (await db.select().from(fasen).where(eq(fasen.projectId, projectId))).sort((a, b) => a.volgorde - b.volgorde);
-  const rijen = await overzicht(db, projectId, s.type, { status: sp.status, faseId: sp.fase, tekst: sp.tekst, object: sp.object });
+  const actor = await huidigeActor(projectId);
+  const beoordelaar = await magBeoordelen(db, actor);
+  const rijen = await overzicht(db, projectId, s.type);
   const namen = new Map((await projectLeden(projectId)).map((l) => [l.id, l.naam]));
-  const kolommen = KOLOMMEN[s.type];
+  const extra = EXTRA[s.type];
+  const kolommen: TabelKolom[] = [
+    { sleutel: "nummer", kop: "Nr.", soort: "tekst" },
+    { sleutel: "titel", kop: "Titel", soort: "tekst", breed: true },
+    ...extra.map((e) => e.kolom),
+    { sleutel: "status", kop: "Status", soort: "keuze" },
+    { sleutel: "eigenaar", kop: "Eigenaar", soort: "keuze" },
+    { sleutel: "fase", kop: "Fase", soort: "keuze" },
+  ];
+  const tabelRijen = rijen.map((r) => ({
+    id: r.id,
+    statusCode: r.status,
+    waarden: {
+      nummer: r.nummer,
+      titel: r.titel,
+      status: STATUS_LABEL[r.status] ?? r.status,
+      eigenaar: r.eigenaarId ? namen.get(r.eigenaarId) ?? "" : "",
+      fase: r.faseCode,
+      ...Object.fromEntries(extra.map((e) => [e.kolom.sleutel, e.waarde(r)])),
+    },
+    sorteer: Object.fromEntries(extra.filter((e) => e.sorteer).map((e) => [e.kolom.sleutel, e.sorteer!(r)])),
+  }));
+  const open = sp.open && rijen.some((r) => r.nummer === sp.open) ? sp.open : undefined;
+  const paneel = open ? await registratieWeergave({ projectId, nummer: open, paneel: true }) : null;
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">{s.titel}</h1>
           <p className="mt-1 max-w-2xl text-sm text-grijs">{s.uitleg}</p>
         </div>
-        <Link href={`/project/${projectId}/inbox`} className="knop-licht">Nieuwe melding</Link>
+        {beoordelaar ? (
+          <NieuweRegistratie projectId={projectId} type={s.type} label={NIEUW[s.type]} objecten={plat(await objectBoom(db, projectId))} />
+        ) : (
+          <Link href={`/project/${projectId}/inbox`} className="knop-licht">Nieuwe melding via de inbox</Link>
+        )}
       </header>
-      <form className="kaart grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-5">
-        <label className="text-sm lg:col-span-2"><span className="label">Zoeken</span><input name="tekst" defaultValue={sp.tekst} className="invoer" placeholder="Nummer of tekst" /></label>
-        <label className="text-sm"><span className="label">Status</span>
-          <select name="status" defaultValue={sp.status ?? ""} className="invoer"><option value="">Alle</option>{s.statussen.map((k) => <option key={k} value={k}>{STATUS_LABEL[k]}</option>)}</select>
-        </label>
-        <label className="text-sm"><span className="label">Fase</span>
-          <select name="fase" defaultValue={sp.fase ?? ""} className="invoer"><option value="">Alle</option>{projectFasen.map((f) => <option key={f.id} value={f.id}>{f.code}</option>)}</select>
-        </label>
-        <label className="text-sm"><span className="label">Object</span><input name="object" defaultValue={sp.object} className="invoer" placeholder="Code of naam" /></label>
-        <div className="flex gap-2 sm:col-span-2 lg:col-span-5">
-          <button className="knop">Filteren</button>
-          <Link href="?" className="knop-licht">Wissen</Link>
-        </div>
-      </form>
-      <p className="text-sm text-grijs">{rijen.length} {rijen.length === 1 ? "registratie" : "registraties"}</p>
-      <div className="kaart overflow-x-auto">
-        <table className="tabel min-w-[760px]">
-          <thead>
-            <tr>
-              <th>Nr.</th>
-              <th>Titel</th>
-              {kolommen.map((k) => <th key={k.kop}>{k.kop}</th>)}
-              <th>Status</th>
-              <th>Eigenaar</th>
-              <th>Fase</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rijen.map((r) => (
-              <tr key={r.id}>
-                <td className="whitespace-nowrap font-mono text-xs"><Link className="text-blauw hover:underline" href={`/project/${projectId}/registraties/${r.nummer}`}>{r.nummer}</Link></td>
-                <td className="min-w-48"><Link className="hover:text-blauw" href={`/project/${projectId}/registraties/${r.nummer}`}>{r.titel}</Link></td>
-                {kolommen.map((k) => <td key={k.kop} className={k.breed ? "min-w-44" : ""}>{k.cel(r)}</td>)}
-                <td><StatusLabel status={r.status} /></td>
-                <td>{r.eigenaarId ? namen.get(r.eigenaarId) : <span className="text-grijs">–</span>}</td>
-                <td>{r.faseCode}</td>
-              </tr>
-            ))}
-            {!rijen.length && <tr><td colSpan={kolommen.length + 5} className="py-6 text-center text-grijs">Geen {s.titel.toLowerCase()} gevonden.</td></tr>}
-          </tbody>
-        </table>
-      </div>
+      <RegistratieTabel kolommen={kolommen} rijen={tabelRijen} open={open} leeg={`Nog geen ${s.titel.toLowerCase()}.`} />
+      {open && paneel && (
+        <NaarPaneel nummer={open}>
+          <div className="mb-3 flex flex-wrap items-center justify-end gap-2 text-sm">
+            <Link className="knop-licht" href={`/project/${projectId}/registraties/${open}`}>Volledig scherm</Link>
+            <Link className="knop-licht" href="?" scroll={false}>Sluiten</Link>
+          </div>
+          <div key={open}>{paneel}</div>
+        </NaarPaneel>
+      )}
     </div>
   );
 }

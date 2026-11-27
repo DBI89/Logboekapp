@@ -43,6 +43,23 @@ test("demoscenario: melden, omzetten, goedkeuren, importeren en exporteren", asy
   await expect(page.getByRole("heading", { name: "Afwijkingen" })).toBeVisible();
   await expect(page.getByRole("link", { name: "AF-0001" })).toBeVisible();
 
+  // filteren in de kolomkop en registratie openen onder de tabel
+  await page.getByRole("button", { name: "Filter op Status" }).click();
+  await page.getByRole("dialog", { name: "Filter Status" }).getByLabel("Goedgekeurd").check();
+  await page.keyboard.press("Escape");
+  await expect(page.getByText(/van \d+ registraties/)).toBeVisible();
+  await page.getByRole("link", { name: "AF-0001" }).click();
+  await expect(page.getByRole("region", { name: "Registratie AF-0001" })).toBeVisible();
+
+  // ontwerpleider maakt direct een issue aan; het opent onder de tabel met open velden
+  await page.locator("#hoofdmenu").getByRole("link", { name: "Issues" }).click();
+  await page.getByRole("button", { name: "Nieuw issue" }).click();
+  await page.getByRole("textbox", { name: "Titel" }).fill("Kabeltracé langs steunpunt as-1 onduidelijk");
+  await page.getByRole("button", { name: "Aanmaken" }).click();
+  const paneel = page.getByRole("region", { name: "Registratie IS-0002" });
+  await expect(paneel).toBeVisible();
+  await expect(paneel.getByText("Gegevens invullen")).toBeVisible();
+
   // voortgang bij een issue en bevriezen bij in behandeling
   await page.goto(`${basis}/registraties/IS-0001`);
   await expect(page.getByLabel("Titel")).toBeVisible();
