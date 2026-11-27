@@ -9,3 +9,9 @@ Afgesproken met de gebruiker op 2026-11-25. Aanvulling op het functioneel ontwer
 5. **Leesbaarheid.** Duidelijke kopjes en scheiding tussen titel, omschrijving en velden.
 6. **Status als keuzemenu.** Eén keuzemenu met alleen de mogelijke vervolgstatussen plus Bevestigen; extra veld waar nodig (reden, toelichting, oplossing, opmerking). Akkoord per raakvlakkant blijft per kant.
 7. **Documentenlijst.** Import (CSV) met per document de behandelde objecten; ontwerpleider kan de objecten van een document aanpassen.
+
+# Aanpassingen ronde 2 (2026-11-27)
+
+1. **Filteren in de kolomkop.** Sorteren door op een kolomtitel te klikken; filteren via het trechtertje (waardenlijst of tekst bevat), zoals in Excel. Het filterblok boven de tabel is vervallen.
+2. **Direct aanmaken.** Ontwerpleider en coördinator maken vanuit elk overzicht direct een registratie (raakvlak: minstens twee objecten). Teamleden gebruiken de inbox.
+3. **Paneel onder de tabel.** Een gekozen registratie opent onder de tabel; de regel licht op. "Volledig scherm" opent de losse pagina.

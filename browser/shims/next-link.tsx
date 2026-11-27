@@ -1,9 +1,9 @@
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { router } from "../router";
 
-type Props = AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; children?: ReactNode };
+type Props = AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; children?: ReactNode; scroll?: boolean; prefetch?: boolean };
 
-export default function Link({ href, onClick, children, ...rest }: Props) {
+export default function Link({ href, onClick, children, scroll: _scroll, prefetch: _prefetch, ...rest }: Props) {
   return (
     <a
       href={href}

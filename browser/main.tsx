@@ -159,9 +159,10 @@ function App() {
     };
   }, [pad, versie]);
 
+  const pathname = pad.split("?")[0];
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [pad]);
+  }, [pathname]);
 
   return (
     <>
